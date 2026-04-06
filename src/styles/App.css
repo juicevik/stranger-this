@@ -1,0 +1,374 @@
+body {
+    margin: 0;
+    background: #000;
+    min-height: 100vh;
+    color: #ffffff;
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    min-width: 300px;
+    overflow-x: hidden;
+}
+
+.background-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    animation: float 70s infinite ease-in-out;
+    transform-origin: center;
+}
+
+.floating-element {
+    position: absolute;
+    top: 20%;
+    left: 10%;
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    animation: stretch 20s infinite ease-in-out;
+}
+
+.floating-element:nth-child(1) {
+    width: 47.25vw; /* Увеличено на 40% с 33.75vw */
+    height: 37.8vh; /* Увеличено на 40% с 27vh */
+    background: rgba(56, 178, 252, 0.2);
+    filter: blur(60px);
+}
+
+.floating-element:nth-child(2) {
+    width: 28.35vw; /* Увеличено на 40% с 20.25vw */
+    height: 28.35vh; /* Увеличено на 40% с 20.25vh */
+    background: rgba(56, 178, 252, 0.25);
+    filter: blur(40px);
+}
+
+.floating-element:nth-child(3) {
+    width: 34.02vw; /* Увеличено на 40% с 24.3vw */
+    height: 34.02vh; /* Увеличено на 40% с 24.3vh */
+    background: rgba(56, 178, 252, 0.3);
+    filter: blur(50px);
+}
+
+@keyframes float {
+    0% { transform: translate(-12%, 1%) scale(0.1); opacity: 0; }
+    11% { transform: translate(-12%, 1%) scale(1); opacity: 1; }
+    30% { transform: translate(25%, 10%) scale(1); opacity: 1; }
+    40% { transform: translate(70%, 15%) scale(1); opacity: 1; }
+    45% { transform: translate(40%, 50%) scale(1); opacity: 1; }
+    50% { transform: translate(10%, 80%) scale(1); opacity: 1; }
+    55% { transform: translate(45%, 65%) scale(1); opacity: 1; }
+    60% { transform: translate(80%, 50%) scale(1); opacity: 1; }
+    65% { transform: translate(55%, 15%) scale(1); opacity: 1; }
+    70% { transform: translate(30%, -20%) scale(1); opacity: 1; }
+    75% { transform: translate(62%, 25%) scale(1); opacity: 1; }
+    80% { transform: translate(95%, 70%) scale(1); opacity: 1; }
+    85% { transform: translate(77%, 40%) scale(1); opacity: 1; }
+    90% { transform: translate(60%, 10%) scale(1); opacity: 1; }
+    95% { transform: translate(80%, 5%) scale(1); opacity: 1; }
+    100% { transform: translate(100%, 0%) scale(1); opacity: 1; }
+}
+
+@keyframes stretch {
+    0% { transform: scale(1, 1); }
+    10% { transform: scale(1.2, 0.8); }
+    20% { transform: scale(1.1, 0.9); }
+    30% { transform: scale(1.2, 0.8); }
+    40% { transform: scale(1.1, 0.9); }
+    50% { transform: scale(1, 1); }
+    60% { transform: scale(1.2, 0.8); }
+    70% { transform: scale(1.1, 0.9); }
+    80% { transform: scale(1.2, 0.8); }
+    90% { transform: scale(1.1, 0.9); }
+    100% { transform: scale(1, 1); }
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+}
+
+.header h1 {
+    font-size: clamp(2.2rem, 11vw, 4.5rem);
+    margin: clamp(20px, 5vw, 100px) auto;
+    padding: 0 16px;
+    font-weight: 800;
+    font-family: 'Montserrat', 'Arial Black', 'Impact', sans-serif;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0px;
+    text-shadow: -0.3px -0.3px 0 #000, 0.3px -0.3px 0 #000, -0.3px 0.3px 0 #000, 0.3px 0.3px 0 #000;
+    animation: fall 1.4s ease-in forwards, shake 0.5s ease-in-out 1.4s forwards;
+    will-change: transform, opacity;
+    word-break: break-word;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+@keyframes fall {
+    0% { transform: translateY(-100vh); opacity: 0; }
+    100% { transform: translateY(-6%); opacity: 1; }
+}
+
+@keyframes shake {
+    0% { transform: translateY(-6%) translateX(0); }
+    20% { transform: translateY(-6%) translateX(2.4px); }
+    40% { transform: translateY(-6%) translateX(-2.4px); }
+    60% { transform: translateY(-6%) translateX(1.2px); }
+    80% { transform: translateY(-6%) translateX(-1.2px); }
+    100% { transform: translateY(-6%) translateX(0); }
+}
+
+.app {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.content {
+    text-align: center;
+    z-index: 2;
+    padding: 20px;
+    border-radius: 10px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+}
+
+.menu-open {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.header {
+    padding: 0px;
+}
+
+.header h2 {
+    font-size: clamp(1.3rem, 5vw, 2.5rem);
+    margin: 10px 0;
+    font-weight: 300;
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    color: #00bfff;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: -0.3px -0.3px 0 #000, 0.3px -0.3px 0 #000, -0.3px 0.3px 0 #000, 0.3px 0.3px 0 #000;
+}
+
+.header p {
+    font-size: clamp(0.72rem, 2.8vw, 1rem);
+    color: #a0a0a0;
+    margin: 8px auto 0;
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    text-shadow: -0.2px -0.2px 0 #000, 0.2px -0.2px 0 #000, -0.2px 0.2px 0 #000, 0.2px 0.2px 0 #000;
+    animation: fadeIn 2.5s ease-in-out forwards;
+    padding: 0 24px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+.contact-button {
+    background: none;
+    border: 0.8px solid #00bfff;
+    color: #00bfff;
+    padding: 13px 30px;
+    font-size: clamp(0.9rem, 3vw, 1.2rem);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    margin-top: 30px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    font-weight: 600;
+}
+
+.contact-button:hover {
+    background: rgba(0, 191, 255, 0.1);
+    box-shadow: 0 0 4.9px #00bfff, 0 0 8.8px #00bfff;
+    transform: scale(1.02);
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.spoiler-btn {
+    width: 47.6px; 
+    height: 47.6px; 
+    background: #000;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 3.3px #00bfff, 0 0 6.5px #00bfff;
+}
+
+.spoiler-btn:hover {
+    box-shadow: 0 0 4.9px #00bfff, 0 0 8.8px #00bfff;
+    transform: scale(1.02);
+}
+
+.spoiler-btn span {
+    width: 29.75px; 
+    height: 3.57px;
+    background: #fff;
+    border-radius: 5px;
+}
+
+.context-menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: 15px 0 0 15px;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+.context-menu.open {
+    transform: translateX(0);
+}
+
+.menu-content {
+    padding: 60px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-left: 32px;
+}
+
+.menu-content a {
+    font-size: 1.14rem;
+    color: #cdcdcb;
+    text-decoration: none;
+    margin: 5.2px 0;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', 'Arial', sans-serif;
+}
+
+.menu-content a:hover {
+    color: #00bfff;
+    transform: scale(1.05);
+}
+
+.privacy-policy {
+    color: #ffffff;
+    font-family: 'Arial', sans-serif;
+    font-size: 1rem;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+    line-height: 1.6;
+}
+
+.privacy-policy h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.privacy-policy p {
+    margin-bottom: 15px;
+}
+
+.copyright {
+    position: fixed;
+    bottom: 6px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 1002;
+    font-size: 0.6rem;
+    color: #ffffff;
+    font-family: 'Montserrat', 'Arial', sans-serif;
+    padding: 0 24px;
+    box-sizing: border-box;
+}
+
+/* === АДАПТИВНОСТЬ === */
+
+/* Планшеты и средние экраны */
+@media (max-width: 768px) {
+    .content {
+        padding: 16px;
+    }
+    .header h1 {
+        font-size: clamp(2rem, 10vw, 3.5rem);
+        padding: 0 20px;
+        margin: 24px auto;
+    }
+    .header h2 {
+        font-size: clamp(1.1rem, 4.5vw, 2rem);
+    }
+}
+
+/* Мобильные (iPhone SE, 12 mini, стандарт) */
+@media (max-width: 480px) {
+    .content {
+        padding: 12px;
+    }
+    .header h1 {
+        font-size: clamp(1.8rem, 10vw, 2.8rem);
+        padding: 0 16px;
+        margin: 16px auto;
+        letter-spacing: -0.5px;
+    }
+    .header h2 {
+        font-size: clamp(1rem, 4vw, 1.6rem);
+        letter-spacing: 2px;
+    }
+    .header p {
+        font-size: 0.78rem;
+        padding: 0 20px;
+    }
+    .contact-button {
+        padding: 11px 26px;
+        font-size: 0.95rem;
+        margin-top: 24px;
+    }
+}
+
+/* Совсем маленькие (iPhone SE 1-го поколения, 320px) */
+@media (max-width: 360px) {
+    .header h1 {
+        font-size: clamp(1.5rem, 9vw, 2.2rem);
+        padding: 0 12px;
+    }
+    .header h2 {
+        font-size: 1rem;
+        letter-spacing: 1px;
+    }
+    .header p {
+        font-size: 0.72rem;
+        padding: 0 14px;
+    }
+    .context-menu {
+        width: 100vw;
+        border-radius: 0;
+    }
+}

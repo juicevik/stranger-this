@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <!-- Главная -->
+  <url>
+    <loc>https://
+    
+    
+    
+    
+    /</loc>
+    <lastmod>2025-12-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- Портфолио -->
+  <url>
+    <loc>https://kalyakin.github.io/portfolio</loc>
+    <lastmod>2025-12-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <!-- Пример изображения из портфолио -->
+    <image:image>
+      <image:loc>https://kalyakin.github.io/rodina-preview.jpg</image:loc>
+      <image:title>Rodina Project Preview</image:title>
+    </image:image>
+  </url>
+  
+  <!-- Политика конфиденциальности -->
+  <url>
+    <loc>https://kalyakin.github.io/privacy</loc>
+    <lastmod>2025-12-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>

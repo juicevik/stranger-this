@@ -1,0 +1,28 @@
+User-agent: *
+Allow: /
+Disallow: /*?*          # Блокируем параметры (дубли)
+Disallow: /raw/         # Блокируем сырой код
+Disallow: /static/      # Если есть, но разрешаем CSS/JS
+Allow: /static/css/
+Allow: /static/js/
+Allow: /static/media/
+
+# Для AI-ботов (защита 2025)
+User-agent: GPTBot
+Disallow: /
+User-agent: Google-Extended
+Disallow: /
+
+# Специально для Google/Yandex
+User-agent: Googlebot
+Crawl-delay: 1
+User-agent: Yandex
+Crawl-delay: 2
+
+# Sitemap
+Sitemap: https://
+
+
+
+
+/sitemap.xml
