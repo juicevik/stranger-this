@@ -1,110 +1,82 @@
-// src/App.js
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
-import './styles/App.css';
-import PrivacyPolicy from './components/PrivacyPolicy';
-import Portfolio from './components/Portfolio';
+import { BrowserRouter as Router, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Analytics } from "@vercel/analytics/react";
+import './styles/App.css';
+import About from './components/About';
+import Home from './components/Home';
+import MenuSpoiler from './components/MenuSpoiler';
+import Portfolio from './components/Portfolio';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import { getLocaleFromPath, getPageKeyFromPath, pageSeo } from './data/siteContent';
+import { applyPageSeo } from './utils/seo';
 
 const BackgroundAnimation = () => {
   const location = useLocation();
-  // Не отображаем фоновые эффекты на странице /portfolio
-  if (location.pathname === '/portfolio') {
+  const isPortfolio = location.pathname === '/portfolio' || location.pathname === '/en/portfolio';
+
+  if (isPortfolio) {
     return null;
   }
 
   return (
-    <div className="background-effects">
+    <div className="background-effects" aria-hidden="true">
       <div className="floating-container">
-        <div className="floating-element"></div>
-        <div className="floating-element"></div>
-        <div className="floating-element"></div>
+        <div className="floating-element" />
+        <div className="floating-element" />
+        <div className="floating-element" />
+        <div className="glass-light" />
       </div>
     </div>
   );
 };
 
-const ContactButton = () => (
-  <a href="tg://resolve?domain=kalyakinviktor" target="_blank" rel="noopener noreferrer">
-    <button className="contact-button">CONTACT</button>
-  </a>
-);
+const AppShell = () => {
+  const location = useLocation();
+  const [isHomeVisible, setIsHomeVisible] = useState(false);
+  const locale = getLocaleFromPath(location.pathname);
+  const pageKey = getPageKeyFromPath(location.pathname);
 
-const Header = () => (
-  <div className="header">
-    <h1>VIKTOR KALYAKIN</h1>
-    <h2>WEBMASTER</h2>
-    <p>Full-Stack Developer & Automation Engineer
-Python, Node.js, React, Web Scraping, Automation, HTML, CSS.</p>
-  </div>
-);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIsHomeVisible(true), 300);
+    return () => window.clearTimeout(timer);
+  }, []);
 
-const MenuSpoiler = () => {
-  const [isMenuSpoilerOpen, setIsMenuSpoilerOpen] = useState(false);
-
-  const toggleMenuSpoiler = () => {
-    setIsMenuSpoilerOpen(!isMenuSpoilerOpen);
-  };
+  useEffect(() => {
+    applyPageSeo({
+      locale,
+      pageKey,
+      pathname: location.pathname,
+      seo: pageSeo[locale][pageKey],
+    });
+  }, [locale, location.pathname, pageKey]);
 
   return (
-    <>
-      <button
-        className="spoiler-btn"
-        onClick={toggleMenuSpoiler}
-        style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 1001 }}
-      >
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-      <div className={`context-menu ${isMenuSpoilerOpen ? 'open' : ''}`}>
-        <div className="menu-content">
-          <a href="/">Главная</a>
-          <a href="https://vk.com/1kalyakin">Я в VK</a>
-          <a href="/portfolio">Мои Работы</a>
-          <a href="tg://resolve?domain=kalyakinviktor">Связаться</a>
-          <a href="https://kalyakin.github.io">Обо мне</a>
-          <a href="/privacy-policy">Политика конфиденциальности</a>
-        </div>
-      </div>
-    </>
+    <div className={`app app-${pageKey}`}>
+      <BackgroundAnimation />
+      <MenuSpoiler locale={locale} />
+      <Routes>
+        <Route path="/" element={<Home locale="ru" isVisible={isHomeVisible} />} />
+        <Route path="/about" element={<About locale="ru" />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy locale="ru" />} />
+        <Route path="/portfolio" element={<Portfolio locale="ru" />} />
+        <Route path="/en" element={<Home locale="en" isVisible={isHomeVisible} />} />
+        <Route path="/en/about" element={<About locale="en" />} />
+        <Route path="/en/privacy-policy" element={<PrivacyPolicy locale="en" />} />
+        <Route path="/en/portfolio" element={<Portfolio locale="en" />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <div className="copyright">© 2026 VIKTOR KALYAKIN. All rights reserved</div>
+      <Analytics />
+    </div>
   );
 };
 
 function App() {
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    setTimeout(() => setMenuOpen(true), 500);
-  }, []);
-
   return (
     <Router>
-      <div className="app">
-        <BackgroundAnimation />
-        <MenuSpoiler />
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <div className={`content ${menuOpen ? 'menu-open' : ''}`} style={{ paddingBottom: '60px' }}>
-                <Header />
-                <ContactButton />
-              </div>
-            }
-          />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-        <h5 className="copyright">© 2026 VIKTOR KALYAKIN. All rights reserved</h5>
-        <Analytics />
-      </div>
+      <AppShell />
     </Router>
   );
 }
 
 export default App;
-
-
-
