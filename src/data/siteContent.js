@@ -21,24 +21,27 @@ export const getLocaleFromPath = (pathname = '/') => (
   pathname === '/en' || pathname.startsWith('/en/') ? 'en' : 'ru'
 );
 
+const normalizePath = (pathname = '/') => pathname.replace(/\/$/, '') || '/';
+
+const routePathToPageKey = Object.values(routePaths).reduce((routesByPath, localeRoutes) => {
+  Object.entries(localeRoutes).forEach(([pageKey, path]) => {
+    routesByPath[path] = pageKey;
+  });
+  return routesByPath;
+}, {});
+
 export const getPageKeyFromPath = (pathname = '/') => {
-  const cleanPath = pathname.replace(/\/$/, '') || '/';
-  const routes = {
-    '/': 'home',
-    '/about': 'about',
-    '/portfolio': 'portfolio',
-    '/privacy-policy': 'privacy',
-    '/en': 'home',
-    '/en/about': 'about',
-    '/en/portfolio': 'portfolio',
-    '/en/privacy-policy': 'privacy',
-  };
-  return routes[cleanPath] || 'home';
+  const cleanPath = normalizePath(pathname);
+  return routePathToPageKey[cleanPath] || 'home';
 };
 
-export const getLocalizedPath = (pageKey, locale) => (
-  routePaths[locale][pageKey] || routePaths[locale].home
-);
+export const getLocalizedPath = (pageKey, locale) => {
+  const localeRoutes = routePaths[locale];
+  if (!localeRoutes) {
+    return routePaths.ru.home;
+  }
+  return localeRoutes[pageKey] || localeRoutes.home;
+};
 
 export const menuLinks = {
   ru: [

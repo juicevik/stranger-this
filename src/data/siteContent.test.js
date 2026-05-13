@@ -1,7 +1,9 @@
 import {
   CONTACT_URL,
   BASE_URL,
+  getLocalizedPath,
   getLocaleFromPath,
+  getPageKeyFromPath,
   localizedContent,
   pageSeo,
   portfolioProjects,
@@ -30,6 +32,19 @@ describe('siteContent', () => {
     expect(routePaths.en.about).toBe('/en/about');
     expect(routePaths.en.portfolio).toBe('/en/portfolio');
     expect(routePaths.en.privacy).toBe('/en/privacy-policy');
+  });
+
+  test('detects page key from localized route paths', () => {
+    expect(getPageKeyFromPath('/portfolio/')).toBe('portfolio');
+    expect(getPageKeyFromPath('/en/about')).toBe('about');
+    expect(getPageKeyFromPath('/missing')).toBe('home');
+  });
+
+  test('returns localized paths with safe fallbacks', () => {
+    expect(getLocalizedPath('portfolio', 'en')).toBe('/en/portfolio');
+    expect(getLocalizedPath('missing', 'en')).toBe('/en');
+    expect(getLocalizedPath('portfolio', 'unknown')).toBe('/');
+    expect(getLocalizedPath('portfolio')).toBe('/');
   });
 
   test('homepage copy includes Python and comprehensive SEO', () => {
