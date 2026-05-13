@@ -4,6 +4,9 @@
 # production build
 /build/
 
+# test coverage
+/coverage/
+
 # local Codex/Superpowers artifacts
 /.superpowers/
 
