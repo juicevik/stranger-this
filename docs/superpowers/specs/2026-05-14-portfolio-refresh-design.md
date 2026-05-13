@@ -61,11 +61,11 @@ Content:
 
 Suggested Russian positioning:
 
-`Веб-разработчик, Python-разработчик и специалист по автоматизации. React, Node.js, Python, HTML/CSS, SEO, парсинг, веб-интеграции и деплой на Vercel.`
+`Веб-разработчик, Python-разработчик и специалист по автоматизации. React, Node.js, Python, HTML/CSS, техническое SEO, ведение SEO, парсинг и веб-интеграции.`
 
 Suggested English positioning:
 
-`Web developer, Python developer, and automation specialist. React, Node.js, Python, HTML/CSS, SEO, scraping, web integrations, and Vercel deployment.`
+`Web developer, Python developer, and automation specialist. React, Node.js, Python, HTML/CSS, technical SEO, ongoing SEO support, scraping, and web integrations.`
 
 Visual updates:
 
@@ -116,9 +116,9 @@ The about page carries the content and SEO weight that should not be added to th
 Russian page content should cover:
 
 - Short personal intro.
-- Core skills: Python, React, Node.js, HTML/CSS, SEO, automation, scraping, integrations, Vercel, WordPress or landing/store work where relevant.
-- Services: business-card websites, landing pages, portfolio sites, store/catalog pages, automation scripts, parsing/scraping, technical SEO optimization, deployment.
-- Working style: practical, performance-minded, clean responsive layout, attention to SEO and deployment.
+- Core skills: Python, React, Node.js, HTML/CSS, technical SEO, ongoing SEO support, automation, scraping, integrations, WordPress or landing/store work where relevant.
+- Main services: SEO audit, technical SEO optimization, ongoing SEO maintenance, business-card websites, landing pages, portfolio sites, store/catalog pages, automation scripts, and parsing/scraping.
+- Working style: practical, performance-minded, clean responsive layout, and attention to long-term SEO health.
 - Contact CTA.
 
 English page content should mirror the same meaning naturally, not as a word-for-word literal translation.
@@ -205,7 +205,7 @@ Because this iteration stays on Create React App, SEO metadata should be split i
 
 Canonical domain:
 
-- Use `https://kalyakin.github.io` unless the deployment target changes during release.
+- Use `https://kalyakin.github.io` unless the canonical production domain changes during release.
 
 ## Accessibility And Mobile
 
