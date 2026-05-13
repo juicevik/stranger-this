@@ -9,7 +9,7 @@ const policyText = {
     },
     {
       title: '2. Сбор и обработка данных',
-      body: 'Мы используем Яндекс Метрика и Vercel Analytics для анализа посещаемости, улучшения удобства и качества работы сайта. Сервисы могут обрабатывать технические данные: IP-адрес в анонимизированной форме, тип устройства и браузера, посещенные страницы, действия на сайте и источник перехода.',
+      body: 'Мы используем Яндекс Метрика с функцией Вебвизор и Vercel Analytics для анализа посещаемости, улучшения удобства и качества работы сайта. Вебвизор может выполнять запись поведения посетителей на страницах, включая движения курсора, клики, прокрутку и ввод в формы, если такие действия доступны сервису. Аналитические сервисы также могут обрабатывать технические данные: IP-адрес в анонимизированной форме, тип устройства и браузера, посещенные страницы и источник перехода.',
     },
     {
       title: '3. Использование cookies',
@@ -31,7 +31,7 @@ const policyText = {
     },
     {
       title: '2. Data collection and processing',
-      body: 'We use Yandex Metrika and Vercel Analytics to analyze visits, improve usability, and maintain the quality of the website. These services may process technical data: anonymized IP address, device and browser type, visited pages, site actions, and referral source.',
+      body: 'We use Yandex Metrika with Webvisor and Vercel Analytics to analyze visits, improve usability, and maintain the quality of the website. Webvisor may perform session replay and behavior recording on pages, including cursor movements, clicks, scrolling, and form input when those actions are available to the service. Analytics services may also process technical data: anonymized IP address, device and browser type, visited pages, and referral source.',
     },
     {
       title: '3. Cookies',
