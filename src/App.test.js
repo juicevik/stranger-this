@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import App from './App';
 import { localizedContent } from './data/siteContent';
 
@@ -44,5 +45,42 @@ describe('App routing', () => {
     expect(screen.getByText(localizedContent.en.about.intro)).toBeInTheDocument();
     expect(screen.getByText('comprehensive SEO')).toBeInTheDocument();
     expect(screen.getByText(localizedContent.en.about.services[0])).toBeInTheDocument();
+  });
+
+  test('keeps closed menu links out of the tab order', () => {
+    const { container } = renderAt('/');
+    const menuLinks = container.querySelectorAll('#site-menu a');
+
+    expect(menuLinks).toHaveLength(6);
+    menuLinks.forEach((link) => {
+      expect(link).toHaveAttribute('tabindex', '-1');
+    });
+  });
+
+  test('restores menu links to the tab order when menu opens', async () => {
+    const user = userEvent.setup();
+    const { container } = renderAt('/');
+    const menuButton = screen.getByRole('button', { name: /открыть меню/i });
+
+    await user.click(menuButton);
+
+    expect(menuButton).toHaveAttribute('aria-expanded', 'true');
+    container.querySelectorAll('#site-menu a').forEach((link) => {
+      expect(link).toHaveAttribute('tabindex', '0');
+    });
+  });
+
+  test('Escape closes open menu and returns focus to the menu button', async () => {
+    const user = userEvent.setup();
+    renderAt('/');
+    const menuButton = screen.getByRole('button', { name: /открыть меню/i });
+
+    await user.click(menuButton);
+    expect(menuButton).toHaveAttribute('aria-expanded', 'true');
+
+    await user.keyboard('{Escape}');
+
+    expect(menuButton).toHaveAttribute('aria-expanded', 'false');
+    expect(menuButton).toHaveFocus();
   });
 });

@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { menuLinks } from '../data/siteContent';
 
 const MenuSpoiler = ({ locale }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const buttonRef = useRef(null);
   const labels = {
     ru: { open: 'Открыть меню', close: 'Закрыть меню' },
     en: { open: 'Open menu', close: 'Close menu' },
@@ -11,19 +12,21 @@ const MenuSpoiler = ({ locale }) => {
 
   useEffect(() => {
     const handleEscape = (event) => {
-      if (event.key === 'Escape') {
+      if (event.key === 'Escape' && isOpen) {
         setIsOpen(false);
+        buttonRef.current?.focus();
       }
     };
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
-  }, []);
+  }, [isOpen]);
 
   const closeMenu = () => setIsOpen(false);
 
   return (
     <>
       <button
+        ref={buttonRef}
         className={`spoiler-btn ${isOpen ? 'active' : ''}`}
         type="button"
         aria-label={isOpen ? labels[locale].close : labels[locale].open}
@@ -44,11 +47,18 @@ const MenuSpoiler = ({ locale }) => {
         <div className="menu-content">
           {menuLinks[locale].map((link) => (
             link.internal ? (
-              <Link key={link.label} to={link.href} onClick={closeMenu}>
+              <Link key={link.label} to={link.href} tabIndex={isOpen ? 0 : -1} onClick={closeMenu}>
                 {link.label}
               </Link>
             ) : (
-              <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
+              <a
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                tabIndex={isOpen ? 0 : -1}
+                onClick={closeMenu}
+              >
                 {link.label}
               </a>
             )
