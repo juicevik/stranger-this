@@ -61,11 +61,11 @@ Content:
 
 Suggested Russian positioning:
 
-`Веб-разработчик, Python-разработчик и специалист по автоматизации. React, Node.js, Python, HTML/CSS, техническое SEO, ведение SEO, парсинг и веб-интеграции.`
+`Веб-разработчик, Python-разработчик и специалист по автоматизации. React, Node.js, Python, HTML/CSS, комплексное SEO, парсинг и веб-интеграции.`
 
 Suggested English positioning:
 
-`Web developer, Python developer, and automation specialist. React, Node.js, Python, HTML/CSS, technical SEO, ongoing SEO support, scraping, and web integrations.`
+`Web developer, Python developer, and automation specialist. React, Node.js, Python, HTML/CSS, comprehensive SEO, scraping, and web integrations.`
 
 Visual updates:
 
@@ -116,8 +116,8 @@ The about page carries the content and SEO weight that should not be added to th
 Russian page content should cover:
 
 - Short personal intro.
-- Core skills: Python, React, Node.js, HTML/CSS, technical SEO, ongoing SEO support, automation, scraping, integrations, WordPress or landing/store work where relevant.
-- Main services: SEO audit, technical SEO optimization, ongoing SEO maintenance, business-card websites, landing pages, portfolio sites, store/catalog pages, automation scripts, and parsing/scraping.
+- Core skills: Python, React, Node.js, HTML/CSS, comprehensive SEO, automation, scraping, integrations, WordPress or landing/store work where relevant.
+- Main services: comprehensive SEO, SEO audit, technical SEO optimization, internal on-page optimization, ongoing SEO maintenance, business-card websites, landing pages, portfolio sites, store/catalog pages, automation scripts, and parsing/scraping.
 - Working style: practical, performance-minded, clean responsive layout, and attention to long-term SEO health.
 - Contact CTA.
 
