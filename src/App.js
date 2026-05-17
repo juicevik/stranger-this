@@ -7,6 +7,7 @@ import Home from './components/Home';
 import MenuSpoiler from './components/MenuSpoiler';
 import Portfolio from './components/Portfolio';
 import PrivacyPolicy from './components/PrivacyPolicy';
+import RoomScene from './components/RoomScene';
 import { getLocaleFromPath, getPageKeyFromPath, pageSeo } from './data/siteContent';
 import { applyPageSeo } from './utils/seo';
 
@@ -35,6 +36,7 @@ const AppShell = () => {
   const [isHomeVisible, setIsHomeVisible] = useState(false);
   const locale = getLocaleFromPath(location.pathname);
   const pageKey = getPageKeyFromPath(location.pathname);
+  const isGameRoute = location.pathname === '/';
 
   useEffect(() => {
     const timer = window.setTimeout(() => setIsHomeVisible(true), 300);
@@ -51,11 +53,11 @@ const AppShell = () => {
   }, [locale, location.pathname, pageKey]);
 
   return (
-    <div className={`app app-${pageKey}`}>
-      <BackgroundAnimation />
-      <MenuSpoiler locale={locale} />
+    <div className={`app app-${isGameRoute ? 'game' : pageKey}`}>
+      {!isGameRoute && <BackgroundAnimation />}
+      {!isGameRoute && <MenuSpoiler locale={locale} />}
       <Routes>
-        <Route path="/" element={<Home locale="ru" isVisible={isHomeVisible} />} />
+        <Route path="/" element={<RoomScene />} />
         <Route path="/about" element={<About locale="ru" />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy locale="ru" />} />
         <Route path="/portfolio" element={<Portfolio locale="ru" />} />
@@ -65,7 +67,7 @@ const AppShell = () => {
         <Route path="/en/portfolio" element={<Portfolio locale="en" />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <div className="copyright">© 2026 VIKTOR KALYAKIN. All rights reserved</div>
+      {!isGameRoute && <div className="copyright">© 2026 VIKTOR KALYAKIN. All rights reserved</div>}
       <Analytics />
     </div>
   );

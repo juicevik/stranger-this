@@ -1,0 +1,137 @@
+.reference-crt-screen {
+  position: absolute;
+  left: 65.2%;
+  top: 39.7%;
+  z-index: 3;
+  width: 16.7%;
+  height: 19.9%;
+  overflow: hidden;
+  clip-path: polygon(3.6% 1.8%, 97.7% 0, 100% 95.5%, 1.4% 98.8%);
+  transform: perspective(900px) rotateY(-2.2deg) rotateX(0.35deg) rotateZ(0.15deg);
+  transform-origin: center center;
+  border-radius: 9px;
+  background: transparent;
+}
+
+.reference-crt-active {
+  background: rgba(2, 4, 8, 0.94);
+  box-shadow:
+    inset 0 0 24px rgba(0, 0, 0, 0.86),
+    0 0 16px rgba(255, 41, 35, 0.16);
+}
+
+.reference-crt-active::after {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  content: "";
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.035) 50%, rgba(0, 0, 0, 0.08) 50%),
+    radial-gradient(circle at 50% 50%, transparent 45%, rgba(0, 0, 0, 0.22));
+  background-size: 100% 4px, 100% 100%;
+  mix-blend-mode: screen;
+  opacity: 0.42;
+  animation: crt-flicker 2.8s steps(2, end) infinite;
+}
+
+@keyframes crt-flicker {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+
+  50% {
+    opacity: 0.48;
+  }
+}
+
+.reference-crt-expanded {
+  position: fixed;
+  left: 50%;
+  top: calc(86px + env(safe-area-inset-top));
+  z-index: 6;
+  width: min(calc(100vw - 28px), calc((100vh - 110px) * 4 / 3));
+  height: min(calc(100vh - 110px), calc((100vw - 28px) * 3 / 4));
+  margin: 0;
+  clip-path: none;
+  transform: translateX(-50%);
+  border-radius: 8px;
+  background: #020307;
+  box-shadow:
+    0 0 0 1px rgba(255, 80, 64, 0.34),
+    0 0 44px rgba(255, 30, 24, 0.2),
+    0 24px 90px rgba(0, 0, 0, 0.72);
+}
+
+.game-room-touch.game-room-expanded .reference-crt-expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  width: 100vw;
+  height: 100dvh;
+  transform: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.start-hotspot {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.start-hotspot:focus-visible {
+  outline: 2px solid rgba(255, 61, 45, 0.94);
+  outline-offset: -7px;
+  box-shadow: inset 0 0 34px rgba(255, 48, 38, 0.22);
+}
+
+.screen-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  color: #ffcfad;
+  font-size: clamp(0.65rem, 1vw, 0.92rem);
+  font-weight: 800;
+  letter-spacing: 0;
+  background: #05080d;
+  text-shadow: 0 0 10px rgba(255, 85, 54, 0.8);
+}
+
+.game-frame {
+  position: absolute;
+  inset: -1px;
+  z-index: 2;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  border: 0;
+  background: #020307;
+}
+
+.game-room-touch.game-room-expanded .game-frame {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

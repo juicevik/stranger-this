@@ -171,6 +171,16 @@ export const portfolioProjects = [
     },
   },
   {
+    title: 'Stranger This',
+    url: 'https://stranger-this-kalyakin.vercel.app/',
+    preview: '/stranger-this-preview.png',
+    alt: 'Stranger This browser game preview',
+    description: {
+      ru: 'Браузерная ретро-игра в атмосфере темной комнаты 80-х с CRT-экраном, монстрами и мобильным управлением.',
+      en: 'A browser retro game in a dark 80s room with a CRT screen, monsters, and mobile controls.',
+    },
+  },
+  {
     title: 'WorkerWP Store',
     url: 'https://workerwp-store.vercel.app',
     preview: '/workerwp-store-preview.jpg',
@@ -185,8 +195,8 @@ export const portfolioProjects = [
 export const pageSeo = {
   ru: {
     home: {
-      title: 'Viktor Kalyakin - веб-разработка, Python и комплексное SEO',
-      description: 'Виктор Калякин: веб-разработка, Python-автоматизация, React, Node.js, комплексное SEO, парсинг и веб-интеграции.',
+      title: 'The Final Fate - браузерная ретро-игра в комнате 80-х',
+      description: 'Атмосферная стартовая сцена с CRT-компьютером и встроенной HTML5-игрой The Final Fate внутри экрана старого ПК.',
     },
     about: {
       title: 'Обо мне - Viktor Kalyakin',

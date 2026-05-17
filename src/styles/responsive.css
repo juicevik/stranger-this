@@ -1,0 +1,142 @@
+@media (max-width: 720px) {
+  .game-room {
+    min-height: 100svh;
+  }
+
+  .reference-room-stage {
+    transform: translateX(-72%);
+  }
+
+  .reference-crt-screen {
+    box-shadow:
+      inset 0 0 18px rgba(0, 0, 0, 0.9),
+      0 0 12px rgba(255, 41, 35, 0.14);
+  }
+
+  .reference-header-mask {
+    height: 78px;
+  }
+
+  .volume-toggle {
+    top: 18px;
+    right: 18px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .game-session-controls {
+    top: 19px;
+    left: 14px;
+    right: 72px;
+    gap: 8px;
+  }
+
+  .game-session-button {
+    min-height: 36px;
+    padding: 0 10px;
+    font-size: 0.68rem;
+  }
+
+  .reference-crt-expanded {
+    left: 50%;
+    top: calc(78px + env(safe-area-inset-top));
+    width: min(calc(100vw - 16px), calc((100svh - 94px) * 4 / 3));
+    height: min(calc(100svh - 94px), calc((100vw - 16px) * 3 / 4));
+  }
+
+  .game-room-touch.game-room-expanded .reference-header-mask {
+    display: none;
+  }
+
+  .game-room-touch.game-room-expanded .game-session-controls {
+    top: calc(12px + env(safe-area-inset-top));
+    left: calc(12px + env(safe-area-inset-left));
+    right: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .game-room-touch.game-room-expanded .game-session-button {
+    min-width: 70px;
+    min-height: 42px;
+    padding: 0 13px;
+    background: rgba(4, 3, 5, 0.74);
+  }
+
+  .game-room-touch.game-room-expanded .volume-toggle {
+    top: calc(12px + env(safe-area-inset-top));
+    right: calc(12px + env(safe-area-inset-right));
+    background: rgba(4, 3, 5, 0.58);
+  }
+
+  .game-room-touch.game-room-expanded .mobile-game-controls {
+    display: flex;
+  }
+}
+
+@media (max-height: 620px) and (orientation: landscape) {
+  .reference-crt-screen {
+    left: 65.2%;
+    top: 39.7%;
+  }
+
+  .game-room-touch.game-room-landscape:not(.game-room-expanded) .reference-header-mask {
+    height: clamp(44px, 11svh, 70px);
+  }
+
+  .game-room-touch.game-room-expanded .reference-header-mask {
+    display: none;
+  }
+
+  .game-room-touch.game-room-expanded .game-session-controls {
+    top: calc(10px + env(safe-area-inset-top));
+    left: calc(12px + env(safe-area-inset-left));
+    right: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .game-room-touch.game-room-expanded .game-session-button {
+    min-width: 70px;
+    min-height: 40px;
+    padding: 0 13px;
+    background: rgba(4, 3, 5, 0.74);
+  }
+
+  .game-room-touch.game-room-expanded .volume-toggle {
+    top: calc(10px + env(safe-area-inset-top));
+    right: calc(12px + env(safe-area-inset-right));
+    background: rgba(4, 3, 5, 0.58);
+  }
+
+  .game-room-touch.game-room-expanded .mobile-game-controls {
+    display: flex;
+    bottom: calc(58px + env(safe-area-inset-bottom));
+  }
+
+  .game-room-touch.game-room-expanded .mobile-game-button {
+    min-width: 78px;
+    min-height: 50px;
+  }
+
+  .game-room-touch.game-room-expanded .mobile-game-button-fire {
+    min-width: 104px;
+    min-height: 60px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .start-hotspot {
+    transition: none;
+  }
+
+  .reference-crt-active::after {
+    animation: none;
+  }
+}

@@ -14,13 +14,32 @@ const renderAt = (path) => {
 };
 
 describe('App routing', () => {
-  test('renders Russian homepage without extra section blocks', () => {
+  test('renders game room on the root route and starts the embedded game', async () => {
+    const user = userEvent.setup();
+
     renderAt('/');
-    expect(screen.getByRole('heading', { name: /VIKTOR KALYAKIN/i })).toBeInTheDocument();
-    expect(screen.getByText(/комплексное SEO/i)).toBeInTheDocument();
-    expect(screen.getByText(/Python/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /открыть меню/i })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: /Услуги/i })).not.toBeInTheDocument();
+
+    expect(screen.getByRole('main')).toHaveClass('game-room');
+    expect(screen.getByRole('button', { name: /^START$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /выключить звук/i })).toBeInTheDocument();
+    expect(screen.queryByLabelText(/game attribution/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /открыть меню/i })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /выключить звук/i }));
+    expect(screen.getByRole('button', { name: /включить звук/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /^START$/i }));
+
+    expect(screen.getByTitle('The Final Fate browser game')).toHaveAttribute('src', '/game/final-fate/index.html');
+    expect(screen.getByRole('button', { name: /выйти/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /развернуть/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /развернуть/i }));
+    expect(screen.getByRole('button', { name: /свернуть/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /выйти/i }));
+    expect(screen.queryByTitle('The Final Fate browser game')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^START$/i })).toBeInTheDocument();
   });
 
   test('renders English homepage', () => {
@@ -48,7 +67,7 @@ describe('App routing', () => {
   });
 
   test('keeps closed menu links out of the tab order', () => {
-    const { container } = renderAt('/');
+    const { container } = renderAt('/en');
     const menuLinks = container.querySelectorAll('#site-menu a');
 
     expect(menuLinks).toHaveLength(6);
@@ -59,8 +78,8 @@ describe('App routing', () => {
 
   test('restores menu links to the tab order when menu opens', async () => {
     const user = userEvent.setup();
-    const { container } = renderAt('/');
-    const menuButton = screen.getByRole('button', { name: /открыть меню/i });
+    const { container } = renderAt('/en');
+    const menuButton = screen.getByRole('button', { name: /open menu/i });
 
     await user.click(menuButton);
 
@@ -72,8 +91,8 @@ describe('App routing', () => {
 
   test('Escape closes open menu and returns focus to the menu button', async () => {
     const user = userEvent.setup();
-    renderAt('/');
-    const menuButton = screen.getByRole('button', { name: /открыть меню/i });
+    renderAt('/en');
+    const menuButton = screen.getByRole('button', { name: /open menu/i });
 
     await user.click(menuButton);
     expect(menuButton).toHaveAttribute('aria-expanded', 'true');

@@ -1,5 +1,6 @@
 // src/components/Portfolio.jsx
 import React, { useEffect, useRef, useState } from 'react';
+import { localizedContent, portfolioProjects } from '../data/siteContent';
 import '../styles/Portfolio.css';
 
 // Класс Renderer для управления WebGL анимацией фона
@@ -11,6 +12,9 @@ class Renderer {
     this.canvas = canvas;
     this.scale = scale;
     this.gl = canvas.getContext("webgl2");
+    if (!this.gl) {
+      throw new Error("WebGL2 is unavailable");
+    }
     this.gl.viewport(0, 0, canvas.width * scale, canvas.height * scale);
     this.shaderSource = this.#fragmtSrc;
     this.mouseCoords = [0, 0];
@@ -177,21 +181,20 @@ void main() {
 	O=vec4(col,1);
 }`;
 
-// Компонент Portfolio
-const Portfolio = () => {
-  const canvasRef = useRef(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+const getProjectDescription = (project, locale) => (
+  project.description?.[locale] || project.description?.ru || ''
+);
 
-  const sites = [
-    { url: "https://rodina.vercel.app/", preview: "/rodina-preview.jpg", alt: "Rodina" },
-    { url: "https://geometriya.vercel.app/", preview: "/geometriya-preview.jpg", alt: "Geometriya" },
-    { url: "https://kalyakin-desktop.vercel.app/", preview: "/kalyakin-desktop-preview.jpg", alt: "Kalyakin Desktop" },
-    { url: "https://rodina.vercel.app/", preview: "/rodina-preview.jpg", alt: "Rodina" },
-    { url: "https://geometriya.vercel.app/", preview: "/geometriya-preview.jpg", alt: "Geometriya" },
-    { url: "https://kalyakin-desktop.vercel.app/", preview: "/kalyakin-desktop-preview.jpg", alt: "Kalyakin Desktop" },
-  ];
+// Компонент Portfolio
+const Portfolio = ({ locale = 'ru' }) => {
+  const canvasRef = useRef(null);
+  const animationFrameRef = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [webglFallback, setWebglFallback] = useState(false);
+
+  const content = localizedContent[locale]?.portfolio || localizedContent.ru.portfolio;
+  const projectCount = portfolioProjects.length;
 
   useEffect(() => {
     const updateDimensions = () => setIsMobile(window.innerWidth <= 900);
@@ -201,34 +204,25 @@ const Portfolio = () => {
   }, []);
 
   const scrollCarousel = (direction) => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-
     setCurrentIndex((prevIndex) => {
-      const totalItems = sites.length;
-      const newIndex = direction === 'next'
-        ? (prevIndex + 1) % totalItems
-        : (prevIndex - 1 + totalItems) % totalItems;
-      return newIndex;
+      const delta = direction === 'next' ? 1 : -1;
+      return (prevIndex + delta + projectCount) % projectCount;
     });
-
-    setTimeout(() => setIsTransitioning(false), 500); // Длительность анимации
   };
 
   // Определяем видимые элементы (3 окна на десктопе, 1 окно на мобильных)
   const getVisibleSites = () => {
-    const totalItems = sites.length;
     const visibleSites = [];
 
     if (isMobile) {
       // На мобильных показываем только одно окно (текущее)
       const index = currentIndex;
-      visibleSites.push({ ...sites[index], position: 0 });
+      visibleSites.push({ ...portfolioProjects[index], position: 0 });
     } else {
       // На десктопе показываем 3 окна: текущее (центр), предыдущее (слева), следующее (справа)
       for (let i = -1; i <= 1; i++) {
-        const index = (currentIndex + i + totalItems) % totalItems;
-        visibleSites.push({ ...sites[index], position: i });
+        const index = (currentIndex + i + projectCount) % projectCount;
+        visibleSites.push({ ...portfolioProjects[index], position: i });
       }
     }
 
@@ -240,9 +234,17 @@ const Portfolio = () => {
     if (!canvas) return;
 
     const dpr = Math.max(1, window.devicePixelRatio);
-    const renderer = new Renderer(canvas, dpr);
-    renderer.setup();
-    renderer.init();
+    let renderer;
+
+    try {
+      renderer = new Renderer(canvas, dpr);
+      renderer.setup();
+      renderer.init();
+      renderer.updateShader(shaderSource);
+    } catch (error) {
+      setWebglFallback(true);
+      return undefined;
+    }
 
     const resize = () => {
       const width = window.innerWidth;
@@ -252,21 +254,21 @@ const Portfolio = () => {
       renderer.updateScale(dpr);
     };
 
-    window.onresize = resize;
+    window.addEventListener('resize', resize);
     resize();
-
-    renderer.updateShader(shaderSource);
 
     const loop = (now) => {
       renderer.render(now);
-      requestAnimationFrame(loop);
+      animationFrameRef.current = requestAnimationFrame(loop);
     };
-    loop(0);
-
-    document.title = "мои работы";
+    animationFrameRef.current = requestAnimationFrame(loop);
 
     return () => {
-      window.onresize = null;
+      window.removeEventListener('resize', resize);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      renderer.reset();
     };
   }, []);
 
@@ -275,27 +277,53 @@ const Portfolio = () => {
       <div className="portfolio-container">
         <canvas ref={canvasRef} className="portfolio-canvas" />
         <div className="portfolio-content">
-          <h1 className="portfolio-title fade-in">мои работы</h1>
+          <h1 className="portfolio-title fade-in">{content.title}</h1>
+          {webglFallback && (
+            <p className="portfolio-fallback">{content.fallback}</p>
+          )}
           <div className="carousel-container">
-            <button className="carousel-arrow carousel-arrow-left" onClick={() => scrollCarousel('prev')} />
+            <button
+              type="button"
+              className="carousel-arrow carousel-arrow-left"
+              aria-label={content.previousLabel}
+              onClick={() => scrollCarousel('prev')}
+            >
+              <span aria-hidden="true">‹</span>
+            </button>
             <div className="carousel-wrapper">
               <div className="carousel">
                 {getVisibleSites().map((site, index) => (
-                  <a key={index} href={site.url} target="_blank" rel="noopener noreferrer">
-                    <div
-                      className={`iframe-wrapper ${site.position === 0 ? 'center' : ''}`}
+                  <article
+                    className={`portfolio-card ${site.position === 0 ? 'center' : ''}`}
+                    key={`${site.title}-${site.position}-${index}`}
+                  >
+                    <a
+                      className="portfolio-card-link"
+                      href={site.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       <img
                         src={site.preview}
                         alt={site.alt}
                         className="portfolio-preview fade-in"
                       />
-                    </div>
-                  </a>
+                      <h2>{site.title}</h2>
+                      <p>{getProjectDescription(site, locale)}</p>
+                      <span>{content.openLabel}</span>
+                    </a>
+                  </article>
                 ))}
               </div>
             </div>
-            <button className="carousel-arrow carousel-arrow-right" onClick={() => scrollCarousel('next')} />
+            <button
+              type="button"
+              className="carousel-arrow carousel-arrow-right"
+              aria-label={content.nextLabel}
+              onClick={() => scrollCarousel('next')}
+            >
+              <span aria-hidden="true">›</span>
+            </button>
           </div>
         </div>
       </div>
