@@ -11,6 +11,15 @@ const MobileGameButton = ({ control, label, className = '', onControl }) => {
     onControl(control, false);
   };
 
+  const tap = (event) => {
+    if (control !== 'shoot') {
+      return;
+    }
+    event.preventDefault();
+    onControl(control, true);
+    window.setTimeout(() => onControl(control, false), 140);
+  };
+
   return (
     <button
       className={`mobile-game-button ${className}`}
@@ -20,6 +29,7 @@ const MobileGameButton = ({ control, label, className = '', onControl }) => {
       onPointerUp={release}
       onPointerCancel={release}
       onPointerLeave={release}
+      onClick={tap}
       onContextMenu={(event) => event.preventDefault()}
     >
       <span aria-hidden="true">{label}</span>
