@@ -45,6 +45,39 @@ simplyPlaySound = function (soundObject) {
     safelyPlay(soundObject, true);
 };
 
+function addNightBurst(x, y, color, life, size) {
+    if (!displayList) {
+        return;
+    }
+
+    var burst = new GameObject();
+    burst.middleX = x;
+    burst.middleY = y;
+    burst.color = color || themePalette.red;
+    burst.life = life || 12;
+    burst.size = size || 1;
+    burst.updateState = function () {
+        this.frameCounter++;
+        if (this.frameCounter > this.life) {
+            this.invalid = true;
+        }
+    };
+    burst.renderState = function () {
+        var progress = this.frameCounter / this.life;
+        var radius = (2 + progress * 7) * this.size;
+        var alpha = Math.max(0, 1 - progress);
+        context.save();
+        context.globalAlpha = alpha;
+        context.fillStyle = this.color;
+        context.fillRect((this.middleX - radius) * 10, this.middleY * 10, radius * 20, 10);
+        context.fillRect(this.middleX * 10, (this.middleY - radius) * 10, 10, radius * 20);
+        context.fillStyle = themePalette.amber;
+        context.fillRect((this.middleX - radius / 2) * 10, (this.middleY - radius / 2) * 10, radius * 10, radius * 10);
+        context.restore();
+    };
+    displayList.addElement(burst, false);
+}
+
 function themeGrid() {
     context.fillStyle = themePalette.black;
     context.fillRect(0, 0, oldestWidth, oldestHeight);
@@ -157,6 +190,11 @@ function nightBossDimension() {
 
 function nightBossUpdate() {
     this.frameCounter++;
+    if (!this.spawnAnnounced) {
+        this.spawnAnnounced = true;
+        simplyPlaySound(sfx5 || sfx1);
+        addNightBurst(this.middleX, this.middleY, themePalette.amber, 14, 1.25);
+    }
     if (this.middleY < 14) {
         this.middleY += 0.25;
     }
@@ -184,14 +222,28 @@ function nightBossRender() {
 }
 
 function nightBossInvalidate() {
+    if (this.invalid) {
+        return;
+    }
     this.hp -= 8;
+    addNightBurst(this.middleX, this.middleY, themePalette.red, 8, 0.75);
     context.globalAlpha = 0.5;
     context.fillStyle = themePalette.red;
     context.fillRect(0, 0, oldestWidth, oldestHeight);
     context.globalAlpha = 1;
     if (this.hp <= 0) {
+        addNightBurst(this.middleX, this.middleY, themePalette.amber, 20, 2.2);
+        simplyPlaySound(sfx1);
         this.invalid = true;
     }
+}
+
+function nightMonsterInvalidate() {
+    if (this.invalid) {
+        return;
+    }
+    addNightBurst(this.middleX, this.middleY, this.variant === 2 ? themePalette.green : themePalette.red, 10, 0.72);
+    this.invalid = true;
 }
 
 function createNightMonster(x, y, levelIndex, variant) {
@@ -203,7 +255,8 @@ function createNightMonster(x, y, levelIndex, variant) {
         nightMonsterRender,
         10 + levelIndex * 2,
         true,
-        1
+        1,
+        nightMonsterInvalidate
     );
     monster.speed = 0.55 + levelIndex * 0.08 + (variant % 2) * 0.18;
     monster.wobble = variant === 2 ? 0.22 : 0;
@@ -367,4 +420,26 @@ window.addEventListener("message", function (event) {
             media.volume = masterVolume / 100;
         }
     });
+});
+
+document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+        if (renderTimer !== null) {
+            clearInterval(renderTimer);
+            renderTimer = null;
+        }
+        [bgm, bgm_special, bgm_sus].forEach(function (media) {
+            if (media) {
+                media.pause();
+            }
+        });
+        return;
+    }
+
+    if (renderTimer === null && renderFunction) {
+        exchangeRenderLoop(renderFunction, true);
+    }
+    if (renderFunction === gamePlay && masterVolume > 0) {
+        safelyPlay(player.level < 4 ? bgm : bgm_special, false);
+    }
 });

@@ -139,4 +139,16 @@
   .reference-crt-active::after {
     animation: none;
   }
+
+  .game-room-touch.game-room-landscape:not(.game-room-expanded)::before {
+    display: none;
+  }
+
+  .reference-crt-screen,
+  .game-session-button,
+  .mobile-game-button,
+  .volume-toggle {
+    transition: none;
+    will-change: auto;
+  }
 }

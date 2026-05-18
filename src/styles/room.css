@@ -47,8 +47,7 @@
   background:
     linear-gradient(90deg, rgba(0, 0, 0, 0.72), transparent 20%, transparent 80%, rgba(0, 0, 0, 0.72)),
     var(--room-reference-image) center / cover no-repeat;
-  filter: blur(18px) brightness(0.56);
-  transform: scale(1.05);
+  filter: brightness(0.52);
 }
 
 .reference-header-mask {
@@ -127,13 +126,17 @@
 }
 
 .volume-toggle:hover,
-.volume-toggle:focus-visible {
+.volume-toggle:focus-visible,
+.volume-toggle:active {
   color: #ff6b5f;
   outline: none;
 }
 
-.volume-toggle:focus-visible {
-  box-shadow: 0 0 0 2px rgba(255, 35, 35, 0.78);
+.volume-toggle:focus-visible,
+.volume-toggle:active {
+  box-shadow:
+    0 0 0 2px rgba(255, 35, 35, 0.78),
+    0 0 24px rgba(255, 35, 35, 0.34);
 }
 
 .game-session-controls {
@@ -171,10 +174,18 @@
 }
 
 .game-session-button:hover,
-.game-session-button:focus-visible {
+.game-session-button:focus-visible,
+.game-session-button:active {
   color: #fff7f4;
   background: rgba(86, 12, 14, 0.9);
   outline: none;
+  box-shadow:
+    0 0 18px rgba(255, 35, 35, 0.44),
+    inset 0 0 18px rgba(255, 35, 35, 0.2);
+}
+
+.game-session-button:active {
+  transform: translateY(1px);
 }
 
 .mobile-game-controls {
@@ -220,6 +231,9 @@
   background: rgba(112, 14, 18, 0.82);
   color: #fff;
   transform: translateY(1px);
+  box-shadow:
+    0 0 28px rgba(255, 55, 40, 0.46),
+    inset 0 0 26px rgba(255, 55, 40, 0.22);
 }
 
 .mobile-game-button-fire {
