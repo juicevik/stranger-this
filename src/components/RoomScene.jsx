@@ -38,7 +38,6 @@ const RoomScene = () => {
   const siteAudioRef = useRef(null);
   const gameFrameRef = useRef(null);
   const isMutedRef = useRef(isMuted);
-  const hasStartedRef = useRef(hasStarted);
 
   useEffect(() => {
     const updateViewport = () => {
@@ -59,14 +58,10 @@ const RoomScene = () => {
   }, [isMuted]);
 
   useEffect(() => {
-    hasStartedRef.current = hasStarted;
-  }, [hasStarted]);
-
-  useEffect(() => {
     const audio = new Audio('/audio/stranger-think.m4a');
     audio.loop = true;
     audio.preload = 'auto';
-    audio.volume = 0.4;
+    audio.volume = 1;
     siteAudioRef.current = audio;
 
     const tryPlay = () => {
@@ -82,7 +77,7 @@ const RoomScene = () => {
         }
         return;
       }
-      if (!isMutedRef.current && !hasStartedRef.current) {
+      if (!isMutedRef.current) {
         audio.play().catch(() => {});
       }
     };
@@ -110,15 +105,16 @@ const RoomScene = () => {
     }
 
     audio.muted = isMuted;
-    audio.volume = isMuted ? 0 : 0.4;
+    audio.volume = isMuted ? 0 : 1;
   }, [isMuted]);
 
   const handleStart = useCallback(() => {
-    if (canUseMediaPlayback()) {
-      siteAudioRef.current?.pause();
+    const audio = siteAudioRef.current;
+    if (audio && !isMutedRef.current && canUseMediaPlayback()) {
+      audio.play().catch(() => {});
     }
     setIsGameLoaded(false);
-    setIsExpanded(getIsTouchLayout());
+    setIsExpanded(true);
     setHasStarted(true);
     window.setTimeout(() => gameFrameRef.current?.focus(), 80);
   }, []);
@@ -188,10 +184,9 @@ const RoomScene = () => {
           <p>Поверните телефон горизонтально</p>
         </div>
       )}
-      {hasStarted && (
+      {(hasStarted || (isTouchLayout && orientation === 'landscape')) && (
         <GameSessionControls
           isExpanded={isExpanded}
-          showExpandToggle={!isTouchLayout}
           onExit={handleExit}
           onToggleExpanded={() => setIsExpanded((current) => !current)}
         />
@@ -207,7 +202,7 @@ const RoomScene = () => {
                 return;
               }
               audio.muted = false;
-              audio.volume = 0.4;
+              audio.volume = 1;
               if (!canUseMediaPlayback()) {
                 return;
               }
@@ -216,6 +211,11 @@ const RoomScene = () => {
           }
         }}
       />
+      {isTouchLayout && orientation === 'landscape' && !hasStarted && (
+        <button className="mobile-start-button" type="button" onClick={handleStart}>
+          START
+        </button>
+      )}
       {hasStarted && isExpanded && isTouchLayout && (
         <MobileGameControls onControl={handleMobileControl} />
       )}

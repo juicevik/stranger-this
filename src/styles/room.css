@@ -64,8 +64,10 @@
   position: fixed;
   inset: 0;
   z-index: 9;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   padding: 28px;
   background:
     radial-gradient(circle at 50% 38%, rgba(80, 10, 14, 0.64), rgba(3, 2, 3, 0.96) 58%),
@@ -84,6 +86,7 @@
 }
 
 .orientation-prompt-icon {
+  position: relative;
   width: 86px;
   height: 52px;
   border: 2px solid rgba(255, 71, 49, 0.9);
@@ -91,13 +94,38 @@
   box-shadow:
     0 0 22px rgba(255, 39, 30, 0.36),
     inset 0 0 18px rgba(255, 39, 30, 0.18);
+  animation: rotate-phone 1.8s ease-in-out infinite;
+}
+
+.orientation-prompt-icon::after {
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  content: "";
+  border-radius: 50%;
+  background: rgba(255, 228, 213, 0.85);
+  transform: translateY(-50%);
+}
+
+@keyframes rotate-phone {
+  0%,
+  22% {
+    transform: rotate(90deg);
+  }
+
+  58%,
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
 .volume-toggle {
   position: fixed;
   top: 28px;
   right: 58px;
-  z-index: 7;
+  z-index: 12;
   width: 44px;
   height: 44px;
   display: grid;
@@ -142,8 +170,8 @@
 .game-session-controls {
   position: fixed;
   top: 26px;
-  right: 112px;
-  z-index: 7;
+  left: 58px;
+  z-index: 11;
   display: flex;
   gap: 10px;
   align-items: center;
@@ -188,31 +216,61 @@
   transform: translateY(1px);
 }
 
+.game-session-button-expand {
+  width: 42px;
+  min-width: 42px;
+  padding: 0;
+  font-size: 1.28rem;
+  line-height: 1;
+}
+
+.mobile-start-button {
+  position: fixed;
+  right: calc(18px + env(safe-area-inset-right));
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  z-index: 11;
+  min-width: 96px;
+  min-height: 48px;
+  border: 1px solid rgba(255, 77, 57, 0.9);
+  border-radius: 6px;
+  background: rgba(8, 5, 6, 0.78);
+  color: #fff3ed;
+  font-size: 0.88rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  cursor: pointer;
+  box-shadow:
+    0 0 24px rgba(255, 35, 35, 0.36),
+    inset 0 0 18px rgba(255, 35, 35, 0.12);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-start-button:focus-visible,
+.mobile-start-button:active {
+  outline: none;
+  background: rgba(104, 12, 16, 0.92);
+  box-shadow:
+    0 0 34px rgba(255, 48, 38, 0.54),
+    inset 0 0 24px rgba(255, 48, 38, 0.24);
+}
+
 .mobile-game-controls {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: calc(58px + env(safe-area-inset-bottom));
+  inset: 0;
   z-index: 8;
   display: none;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 0 calc(18px + env(safe-area-inset-right)) 0 calc(18px + env(safe-area-inset-left));
+  grid-template-columns: repeat(4, 1fr);
+  padding: 0;
   pointer-events: none;
 }
 
-.mobile-game-controls-left {
-  display: flex;
-  gap: 12px;
-}
-
-.mobile-game-button {
-  min-width: 84px;
-  min-height: 58px;
-  border: 1px solid rgba(255, 77, 57, 0.78);
-  border-radius: 8px;
-  background: rgba(8, 5, 8, 0.7);
+.mobile-game-zone {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: #ffe4d5;
   font-size: 0.72rem;
   font-weight: 900;
@@ -227,21 +285,49 @@
   touch-action: none;
 }
 
-.mobile-game-button:active {
-  background: rgba(112, 14, 18, 0.82);
-  color: #fff;
-  transform: translateY(1px);
+.mobile-game-zone span {
+  position: absolute;
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  left: 50%;
+  min-width: 74px;
+  padding: 11px 12px;
+  border: 1px solid rgba(255, 77, 57, 0.54);
+  border-radius: 8px;
+  background: rgba(8, 5, 8, 0.34);
+  color: rgba(255, 228, 213, 0.6);
+  text-align: center;
   box-shadow:
-    0 0 28px rgba(255, 55, 40, 0.46),
-    inset 0 0 26px rgba(255, 55, 40, 0.22);
+    0 0 18px rgba(255, 37, 28, 0.18),
+    inset 0 0 18px rgba(255, 37, 28, 0.09);
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
-.mobile-game-button-fire {
-  min-width: 112px;
-  min-height: 72px;
-  border-color: rgba(255, 175, 78, 0.86);
-  color: #ffdfab;
+.mobile-game-zone:active span {
+  border-color: rgba(255, 77, 57, 0.9);
+  background: rgba(112, 14, 18, 0.52);
+  color: rgba(255, 255, 255, 0.78);
   box-shadow:
-    0 0 30px rgba(255, 123, 43, 0.28),
-    inset 0 0 22px rgba(255, 123, 43, 0.16);
+    0 0 28px rgba(255, 55, 40, 0.46),
+    inset 0 0 26px rgba(255, 55, 40, 0.18);
+}
+
+.mobile-game-zone-left {
+  grid-column: 1;
+}
+
+.mobile-game-zone-right {
+  grid-column: 2;
+}
+
+.mobile-game-zone-fire {
+  grid-column: 3 / 5;
+}
+
+.mobile-game-zone-fire span {
+  border-color: rgba(255, 175, 78, 0.58);
+  color: rgba(255, 223, 171, 0.6);
+  box-shadow:
+    0 0 22px rgba(255, 123, 43, 0.2),
+    inset 0 0 18px rgba(255, 123, 43, 0.12);
 }

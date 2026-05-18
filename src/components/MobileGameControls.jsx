@@ -11,25 +11,15 @@ const MobileGameButton = ({ control, label, className = '', onControl }) => {
     onControl(control, false);
   };
 
-  const tap = (event) => {
-    if (control !== 'shoot') {
-      return;
-    }
-    event.preventDefault();
-    onControl(control, true);
-    window.setTimeout(() => onControl(control, false), 140);
-  };
-
   return (
     <button
-      className={`mobile-game-button ${className}`}
+      className={`mobile-game-zone ${className}`}
       type="button"
       aria-label={label}
       onPointerDown={press}
       onPointerUp={release}
       onPointerCancel={release}
       onPointerLeave={release}
-      onClick={tap}
       onContextMenu={(event) => event.preventDefault()}
     >
       <span aria-hidden="true">{label}</span>
@@ -39,11 +29,9 @@ const MobileGameButton = ({ control, label, className = '', onControl }) => {
 
 const MobileGameControls = ({ onControl }) => (
   <div className="mobile-game-controls" aria-label="Мобильное управление игрой">
-    <div className="mobile-game-controls-left">
-      <MobileGameButton control="left" label="Назад" className="mobile-game-button-direction" onControl={onControl} />
-      <MobileGameButton control="right" label="Вперед" className="mobile-game-button-direction" onControl={onControl} />
-    </div>
-    <MobileGameButton control="shoot" label="Огонь" className="mobile-game-button-fire" onControl={onControl} />
+    <MobileGameButton control="left" label="Назад" className="mobile-game-zone-left" onControl={onControl} />
+    <MobileGameButton control="right" label="Вперед" className="mobile-game-zone-right" onControl={onControl} />
+    <MobileGameButton control="shoot" label="Огонь" className="mobile-game-zone-fire" onControl={onControl} />
   </div>
 );
 

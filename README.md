@@ -1,6 +1,6 @@
-# The Final Fate Room
+# Stranger Things
 
-Одностраничная React-обертка для браузерной игры The Final Fate: пользователь видит темную ретро-комнату из референс-фото, нажимает `START` на CRT-компьютере и запускает игру внутри экрана.
+Одностраничная React-обертка для браузерной ретро-аркады: пользователь видит темную комнату из референс-фото, нажимает `START` на CRT-компьютере и запускает wave-based shooter внутри экрана.
 
 ## Запуск
 
@@ -26,7 +26,7 @@ npm run build
 /game/final-fate/index.html
 ```
 
-Исходный проект: `The Final Fate / finalfate`  
+Основа файлов и лицензии: `The Final Fate / finalfate`  
 Автор: Manuel Engel / MengelCode  
 Лицензия: MIT
 
@@ -37,14 +37,12 @@ public/game/final-fate/LICENSE.txt
 public/game/final-fate/NOTICE.md
 ```
 
-`public/game/final-fate/theme.js` меняет только визуальную подачу игры: тексты, цвета, HUD, фон и рендер объектов. Базовая механика исходника остается внутри оригинального кода.
+`public/game/final-fate/theme.js` содержит стабильный canvas-loop с 10 циклами, мелкими монстрами, боссом, очками, жизнями, взрывами и SFX.
 
-Музыкальные файлы `title-0.wav`, `title-1.wav`, `special.wav` заменены на оригинальные зацикленные 8-bit synth-horror дорожки. Это не каверы и не копии музыки сериала.
-
-Сайт использует отдельную оригинальную ambient-дорожку:
+Сайт использует одну зацикленную дорожку:
 
 ```txt
-public/audio/site-theme.wav
+public/audio/stranger-think.m4a
 ```
 
 ## Референс-фото

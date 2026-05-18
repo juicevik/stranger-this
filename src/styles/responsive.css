@@ -60,10 +60,20 @@
   }
 
   .game-room-touch.game-room-expanded .game-session-button {
-    min-width: 70px;
+    min-width: 42px;
     min-height: 42px;
     padding: 0 13px;
     background: rgba(4, 3, 5, 0.74);
+  }
+
+  .game-room-touch.game-room-expanded .game-session-button:first-child {
+    min-width: 70px;
+  }
+
+  .game-room-touch.game-room-expanded .game-session-button-expand {
+    width: 42px;
+    min-width: 42px;
+    padding: 0;
   }
 
   .game-room-touch.game-room-expanded .volume-toggle {
@@ -73,14 +83,14 @@
   }
 
   .game-room-touch.game-room-expanded .mobile-game-controls {
-    display: flex;
+    display: grid;
   }
 }
 
 @media (max-height: 620px) and (orientation: landscape) {
   .reference-crt-screen {
-    left: 65.2%;
-    top: 39.7%;
+    left: 65.48%;
+    top: 39.86%;
   }
 
   .game-room-touch.game-room-landscape:not(.game-room-expanded) .reference-header-mask {
@@ -103,10 +113,20 @@
   }
 
   .game-room-touch.game-room-expanded .game-session-button {
-    min-width: 70px;
+    min-width: 42px;
     min-height: 40px;
     padding: 0 13px;
     background: rgba(4, 3, 5, 0.74);
+  }
+
+  .game-room-touch.game-room-expanded .game-session-button:first-child {
+    min-width: 70px;
+  }
+
+  .game-room-touch.game-room-expanded .game-session-button-expand {
+    width: 42px;
+    min-width: 42px;
+    padding: 0;
   }
 
   .game-room-touch.game-room-expanded .volume-toggle {
@@ -116,18 +136,7 @@
   }
 
   .game-room-touch.game-room-expanded .mobile-game-controls {
-    display: flex;
-    bottom: calc(58px + env(safe-area-inset-bottom));
-  }
-
-  .game-room-touch.game-room-expanded .mobile-game-button {
-    min-width: 78px;
-    min-height: 50px;
-  }
-
-  .game-room-touch.game-room-expanded .mobile-game-button-fire {
-    min-width: 104px;
-    min-height: 60px;
+    display: grid;
   }
 }
 
@@ -136,7 +145,8 @@
     transition: none;
   }
 
-  .reference-crt-active::after {
+  .reference-crt-active::after,
+  .orientation-prompt-icon {
     animation: none;
   }
 
@@ -146,7 +156,7 @@
 
   .reference-crt-screen,
   .game-session-button,
-  .mobile-game-button,
+  .mobile-game-zone,
   .volume-toggle {
     transition: none;
     will-change: auto;

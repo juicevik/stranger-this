@@ -56,11 +56,14 @@ describe('siteContent', () => {
 
   test('portfolio contains each project once including WorkerWP Store', () => {
     const titles = portfolioProjects.map((project) => project.title);
-    expect(titles).toEqual(['Rodina', 'Geometriya', 'Kalyakin Desktop', 'Stranger This', 'WorkerWP Store']);
+    expect(titles).toEqual(['Rodina', 'Geometriya', 'Kalyakin Desktop', 'Stranger Things', 'WorkerWP Store']);
     expect(new Set(titles).size).toBe(titles.length);
-    expect(portfolioProjects.find((project) => project.title === 'Stranger This')).toMatchObject({
+    expect(portfolioProjects.find((project) => project.title === 'Stranger Things')).toMatchObject({
       url: 'https://stranger-this-kalyakin.vercel.app/',
       preview: '/stranger-this-preview.png',
+      description: {
+        ru: expect.stringContaining('Браузерная ретро-аркада'),
+      },
     });
     expect(portfolioProjects.find((project) => project.title === 'WorkerWP Store')).toMatchObject({
       url: 'https://workerwp-store.vercel.app',

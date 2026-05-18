@@ -1,12 +1,12 @@
 .reference-crt-screen {
   position: absolute;
-  left: 65.2%;
-  top: 39.7%;
+  left: 65.48%;
+  top: 39.86%;
   z-index: 3;
-  width: 16.7%;
-  height: 19.9%;
+  width: 16.08%;
+  height: 19.32%;
   overflow: hidden;
-  clip-path: polygon(3.6% 1.8%, 97.7% 0, 100% 95.5%, 1.4% 98.8%);
+  clip-path: polygon(4.4% 2.4%, 97.2% 1.2%, 98.9% 94.8%, 3.8% 97.6%);
   transform: perspective(900px) rotateY(-2.2deg) rotateX(0.35deg) rotateZ(0.15deg);
   transform-origin: center center;
   border-radius: 9px;

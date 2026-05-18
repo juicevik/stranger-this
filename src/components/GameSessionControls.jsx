@@ -14,8 +14,14 @@ const GameSessionControls = ({
       Выйти
     </button>
     {showExpandToggle && (
-      <button className="game-session-button" type="button" onClick={onToggleExpanded}>
-        {isExpanded ? 'Свернуть' : 'Развернуть'}
+      <button
+        className="game-session-button game-session-button-expand"
+        type="button"
+        aria-label={isExpanded ? 'Свернуть игру' : 'Развернуть игру'}
+        title={isExpanded ? 'Свернуть игру' : 'Развернуть игру'}
+        onClick={onToggleExpanded}
+      >
+        <span aria-hidden="true">{isExpanded ? '↙' : '⛶'}</span>
       </button>
     )}
   </div>

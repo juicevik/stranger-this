@@ -1,8 +1,9 @@
 /**
- * Retro-horror mode for the embedded The Final Fate engine.
- * The original loop, collision, score, lives, bullets, enemies, and level
- * loading model stay in use; this file narrows the experience into a stable
- * browser arcade mode with a new presentation layer.
+ * Stranger Things arcade mode.
+ *
+ * The original The Final Fate files are still loaded for MIT attribution,
+ * input helpers, canvas setup, and SFX assets. Combat is handled here so the
+ * shooter behavior is deterministic across desktop and mobile.
  */
 
 var themePalette = {
@@ -16,18 +17,17 @@ var themePalette = {
     green: "#78ff9a"
 };
 
-var nightLevelNames = [
-    "Small Town",
-    "Power Lab",
-    "Signal Forest",
-    "Mirror Realm",
-    "Red Moon"
-];
+var strangerArcadeStarted = false;
+var strangerArcadeFrame = null;
+var strangerArcadeState = null;
+var strangerArcadeLastTick = 0;
+var strangerArcadePaused = false;
+var strangerArcadeMuted = false;
 
-masterVolume = 58;
+masterVolume = 100;
 
 function safelyPlay(soundObject, restart) {
-    if (!soundObject) {
+    if (!soundObject || strangerArcadeMuted) {
         return;
     }
     soundObject.pause();
@@ -45,63 +45,372 @@ simplyPlaySound = function (soundObject) {
     safelyPlay(soundObject, true);
 };
 
-function addNightBurst(x, y, color, life, size) {
-    if (!displayList) {
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+}
+
+function rectsCollide(a, b) {
+    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+function monsterCountForCycle(cycle) {
+    if (cycle === 1) {
+        return 5;
+    }
+    if (cycle === 2) {
+        return 7;
+    }
+    return 10 + (cycle - 3) * 3;
+}
+
+function makeExplosion(x, y, color, size, life) {
+    return {
+        x: x,
+        y: y,
+        color: color,
+        size: size || 1,
+        life: life || 18,
+        age: 0
+    };
+}
+
+function resetArcadeGame() {
+    strangerArcadeState = {
+        cycle: 1,
+        score: 0,
+        lives: 3,
+        phase: "monsters",
+        player: { x: 400, y: 520, w: 34, h: 34, cooldown: 0, invuln: 0 },
+        bullets: [],
+        monsters: [],
+        bossBullets: [],
+        explosions: [],
+        spawned: 0,
+        spawnTimer: 28,
+        boss: null,
+        bossFireTimer: 90,
+        gameOver: false,
+        complete: false,
+        pauseHeld: false,
+        shootHeld: false
+    };
+    window.__strangerArcade = strangerArcadeState;
+}
+
+function playerRect() {
+    var p = strangerArcadeState.player;
+    return { x: p.x - p.w / 2, y: p.y - p.h / 2, w: p.w, h: p.h };
+}
+
+function monsterRect(monster) {
+    return { x: monster.x - monster.w / 2, y: monster.y - monster.h / 2, w: monster.w, h: monster.h };
+}
+
+function bossRect() {
+    var boss = strangerArcadeState.boss;
+    return { x: boss.x - boss.w / 2, y: boss.y - boss.h / 2, w: boss.w, h: boss.h };
+}
+
+function bulletRect(bullet) {
+    return { x: bullet.x - 3, y: bullet.y - 18, w: 6, h: 20 };
+}
+
+function bossBulletRect(bullet) {
+    return { x: bullet.x - 5, y: bullet.y - 5, w: 10, h: 10 };
+}
+
+function damagePlayer() {
+    var state = strangerArcadeState;
+    if (state.player.invuln > 0 || state.gameOver || state.complete) {
+        return;
+    }
+    state.lives -= 1;
+    state.player.invuln = 34;
+    state.explosions.push(makeExplosion(state.player.x, state.player.y, themePalette.red, 1.1, 16));
+    simplyPlaySound(sfx3);
+    if (state.lives <= 0) {
+        state.gameOver = true;
+        state.phase = "gameover";
+    }
+}
+
+function spawnMonster() {
+    var state = strangerArcadeState;
+    var lane = state.spawned % 7;
+    var x = 95 + ((state.spawned * 91 + state.cycle * 37) % 610);
+    state.monsters.push({
+        x: x,
+        y: -26,
+        w: 44,
+        h: 26,
+        speed: 1.45 + state.cycle * 0.16,
+        wobble: lane % 2 ? 1.35 : -1.1,
+        age: 0,
+        variant: lane % 3
+    });
+    state.spawned += 1;
+}
+
+function spawnBoss() {
+    var state = strangerArcadeState;
+    state.phase = "boss";
+    state.boss = {
+        x: 400,
+        y: -66,
+        w: 132,
+        h: 72,
+        hp: 10,
+        maxHp: 10,
+        dir: state.cycle % 2 ? 1 : -1,
+        hitFlash: 0,
+        age: 0
+    };
+    state.bossFireTimer = 88;
+    state.explosions.push(makeExplosion(400, 82, themePalette.amber, 1.6, 22));
+    simplyPlaySound(sfx5);
+}
+
+function nextCycle() {
+    var state = strangerArcadeState;
+    if (state.cycle >= 10) {
+        state.complete = true;
+        state.phase = "complete";
+        return;
+    }
+    state.cycle += 1;
+    state.phase = "monsters";
+    state.monsters = [];
+    state.bossBullets = [];
+    state.bullets = [];
+    state.boss = null;
+    state.spawned = 0;
+    state.spawnTimer = 36;
+    state.player.x = 400;
+    state.player.y = 520;
+}
+
+function updateArcadeInput() {
+    var state = strangerArcadeState;
+    if (pause && !state.pauseHeld) {
+        strangerArcadePaused = !strangerArcadePaused;
+        state.pauseHeld = true;
+    } else if (!pause) {
+        state.pauseHeld = false;
+    }
+
+    if (state.gameOver || state.complete) {
+        if (shoot && !state.shootHeld) {
+            resetArcadeGame();
+            strangerArcadePaused = false;
+        }
+        state.shootHeld = Boolean(shoot);
         return;
     }
 
-    var burst = new GameObject();
-    burst.middleX = x;
-    burst.middleY = y;
-    burst.color = color || themePalette.red;
-    burst.life = life || 12;
-    burst.size = size || 1;
-    burst.updateState = function () {
-        this.frameCounter++;
-        if (this.frameCounter > this.life) {
-            this.invalid = true;
-        }
-    };
-    burst.renderState = function () {
-        var progress = this.frameCounter / this.life;
-        var radius = (2 + progress * 7) * this.size;
-        var alpha = Math.max(0, 1 - progress);
-        context.save();
-        context.globalAlpha = alpha;
-        context.fillStyle = this.color;
-        context.fillRect((this.middleX - radius) * 10, this.middleY * 10, radius * 20, 10);
-        context.fillRect(this.middleX * 10, (this.middleY - radius) * 10, 10, radius * 20);
-        context.fillStyle = themePalette.amber;
-        context.fillRect((this.middleX - radius / 2) * 10, (this.middleY - radius / 2) * 10, radius * 10, radius * 10);
-        context.restore();
-    };
-    displayList.addElement(burst, false);
-}
-
-function themeGrid() {
-    context.fillStyle = themePalette.black;
-    context.fillRect(0, 0, oldestWidth, oldestHeight);
-
-    var pulse = Math.sin(aniCount / 24) * 0.08;
-    context.globalAlpha = 0.22 + pulse;
-    context.fillStyle = "#101c2b";
-    for (var y = 0; y < oldestHeight; y += 24) {
-        context.fillRect(0, y, oldestWidth, 1);
+    if (strangerArcadePaused) {
+        return;
     }
 
+    var player = state.player;
+    if (left) {
+        player.x -= 6;
+    }
+    if (right) {
+        player.x += 6;
+    }
+    player.x = clamp(player.x, 28, 772);
+
+    if (player.cooldown > 0) {
+        player.cooldown -= 1;
+    }
+    if (player.invuln > 0) {
+        player.invuln -= 1;
+    }
+    if (shoot && player.cooldown <= 0) {
+        state.bullets.push({ x: player.x, y: player.y - 24, speed: 12 });
+        player.cooldown = 8;
+        simplyPlaySound(sfx0);
+    }
+}
+
+function updateMonsters() {
+    var state = strangerArcadeState;
+    if (state.phase !== "monsters") {
+        return;
+    }
+
+    var target = monsterCountForCycle(state.cycle);
+    if (state.spawned < target) {
+        state.spawnTimer -= 1;
+        if (state.spawnTimer <= 0) {
+            spawnMonster();
+            state.spawnTimer = Math.max(18, 58 - state.cycle * 3);
+        }
+    }
+
+    var pRect = playerRect();
+    state.monsters.forEach(function (monster) {
+        monster.age += 1;
+        monster.y += monster.speed;
+        monster.x += Math.sin(monster.age / 14) * monster.wobble;
+        if (!monster.dead && rectsCollide(pRect, monsterRect(monster))) {
+            monster.dead = true;
+            state.explosions.push(makeExplosion(monster.x, monster.y, themePalette.red, 0.9, 14));
+            damagePlayer();
+        }
+        if (monster.y > 650) {
+            monster.dead = true;
+        }
+    });
+    state.monsters = state.monsters.filter(function (monster) { return !monster.dead; });
+
+    if (state.spawned >= target && state.monsters.length === 0) {
+        spawnBoss();
+    }
+}
+
+function fireBossVolley() {
+    var state = strangerArcadeState;
+    var boss = state.boss;
+    var shots = state.cycle;
+    var baseSpeed = 4.1 + state.cycle * 0.12;
+    for (var i = 0; i < shots; i++) {
+        var spread = shots === 1 ? 0 : (i - (shots - 1) / 2) * 0.12;
+        var dx = state.player.x - boss.x;
+        var dy = state.player.y - boss.y;
+        var length = Math.max(1, Math.sqrt(dx * dx + dy * dy));
+        state.bossBullets.push({
+            x: boss.x,
+            y: boss.y + 36,
+            vx: (dx / length + spread) * baseSpeed,
+            vy: Math.max(2.8, dy / length * baseSpeed)
+        });
+    }
+    simplyPlaySound(sfx5);
+}
+
+function updateBoss() {
+    var state = strangerArcadeState;
+    var boss = state.boss;
+    if (state.phase !== "boss" || !boss) {
+        return;
+    }
+    boss.age += 1;
+    if (boss.y < 86) {
+        boss.y += 2.2;
+    } else {
+        boss.x += boss.dir * (2.1 + state.cycle * 0.05);
+        if (boss.x > 706 || boss.x < 94) {
+            boss.dir *= -1;
+        }
+    }
+    if (boss.hitFlash > 0) {
+        boss.hitFlash -= 1;
+    }
+    state.bossFireTimer -= 1;
+    if (state.bossFireTimer <= 0) {
+        fireBossVolley();
+        state.bossFireTimer = Math.max(58, 118 - state.cycle * 5);
+    }
+}
+
+function updateBulletsArcade() {
+    var state = strangerArcadeState;
+    state.bullets.forEach(function (bullet) {
+        bullet.y -= bullet.speed;
+        if (bullet.y < -20) {
+            bullet.dead = true;
+        }
+    });
+
+    state.bullets.forEach(function (bullet) {
+        if (bullet.dead) {
+            return;
+        }
+        var bRect = bulletRect(bullet);
+        state.monsters.forEach(function (monster) {
+            if (!monster.dead && rectsCollide(bRect, monsterRect(monster))) {
+                monster.dead = true;
+                bullet.dead = true;
+                state.score += 1;
+                state.explosions.push(makeExplosion(monster.x, monster.y, monster.variant === 2 ? themePalette.green : themePalette.red, 1, 16));
+                simplyPlaySound(sfx1);
+            }
+        });
+        if (state.boss && !bullet.dead && rectsCollide(bRect, bossRect())) {
+            bullet.dead = true;
+            state.boss.hp -= 1;
+            state.boss.hitFlash = 6;
+            state.explosions.push(makeExplosion(bullet.x, bullet.y, themePalette.amber, 0.85, 12));
+            simplyPlaySound(sfx1);
+            if (state.boss.hp <= 0) {
+                state.score += 10;
+                state.explosions.push(makeExplosion(state.boss.x, state.boss.y, themePalette.amber, 2.8, 34));
+                state.boss = null;
+                state.bossBullets = [];
+                nextCycle();
+            }
+        }
+    });
+    state.bullets = state.bullets.filter(function (bullet) { return !bullet.dead; });
+    state.monsters = state.monsters.filter(function (monster) { return !monster.dead; });
+}
+
+function updateBossBullets() {
+    var state = strangerArcadeState;
+    var pRect = playerRect();
+    state.bossBullets.forEach(function (bullet) {
+        bullet.x += bullet.vx;
+        bullet.y += bullet.vy;
+        if (rectsCollide(pRect, bossBulletRect(bullet))) {
+            bullet.dead = true;
+            damagePlayer();
+        }
+        if (bullet.y > 640 || bullet.x < -30 || bullet.x > 830) {
+            bullet.dead = true;
+        }
+    });
+    state.bossBullets = state.bossBullets.filter(function (bullet) { return !bullet.dead; });
+}
+
+function updateExplosions() {
+    var state = strangerArcadeState;
+    state.explosions.forEach(function (explosion) {
+        explosion.age += 1;
+        if (explosion.age > explosion.life) {
+            explosion.dead = true;
+        }
+    });
+    state.explosions = state.explosions.filter(function (explosion) { return !explosion.dead; });
+}
+
+function updateArcade() {
+    updateArcadeInput();
+    if (strangerArcadePaused || strangerArcadeState.gameOver || strangerArcadeState.complete) {
+        updateExplosions();
+        return;
+    }
+    updateBulletsArcade();
+    updateMonsters();
+    updateBoss();
+    updateBossBullets();
+    updateExplosions();
+}
+
+function drawBackground() {
+    context.fillStyle = themePalette.black;
+    context.fillRect(0, 0, 800, 600);
+    context.globalAlpha = 0.22;
+    context.fillStyle = "#101c2b";
+    for (var y = 0; y < 600; y += 24) {
+        context.fillRect(0, y, 800, 1);
+    }
     context.globalAlpha = 0.16;
     context.fillStyle = themePalette.red;
-    for (var x = 0; x < oldestWidth; x += 80) {
-        context.fillRect(x, 0, 1, oldestHeight);
+    for (var x = 0; x < 800; x += 80) {
+        context.fillRect(x, 0, 1, 600);
     }
-
     context.globalAlpha = 1;
-}
-
-clearScreen = themeGrid;
-
-function nightBackgroundRender() {
-    themeGrid();
 
     context.fillStyle = "#0a1424";
     context.fillRect(0, 370, 800, 180);
@@ -115,308 +424,196 @@ function nightBackgroundRender() {
         context.fillRect(houseX + 30, 380 - houseH, 8, 8);
         context.fillStyle = "#111b2d";
     }
-
     context.fillStyle = "#0d0f19";
     context.fillRect(0, 470, 800, 80);
     context.fillStyle = themePalette.red;
     context.fillRect(0, 469, 800, 3);
-    context.globalAlpha = 0.44;
-    context.fillStyle = themePalette.amber;
-    context.fillRect(64, 432, 660, 1);
-    context.globalAlpha = 1;
+    context.fillRect(0, 548, 800, 2);
 }
 
-function makeNightBackground() {
-    var bg = new GameObject();
-    bg.updateState = func_noOp;
-    bg.renderState = nightBackgroundRender;
-    return bg;
-}
-
-function nightMonsterDimension() {
-    var x = [];
-    var y = [];
-    for (var dx = -2; dx <= 2; dx++) {
-        for (var dy = -2; dy <= 2; dy++) {
-            if (Math.abs(dx) + Math.abs(dy) < 4) {
-                x.push(this.middleX + dx);
-                y.push(this.middleY + dy);
-            }
-        }
-    }
-    return [x, y];
-}
-
-function nightMonsterUpdate() {
-    this.frameCounter++;
-    this.middleY += this.speed || 1;
-    if (this.wobble) {
-        this.middleX += Math.sin(this.frameCounter / 12) * this.wobble;
-    }
-    if (this.middleY > 68) {
-        this.invalid = true;
-    }
-}
-
-function nightMonsterRender() {
-    var bodyColor = this.variant === 1 ? themePalette.purple : themePalette.red;
-    var eyeColor = this.variant === 2 ? themePalette.green : themePalette.white;
+function drawMonster(monster) {
+    var bodyColor = monster.variant === 1 ? themePalette.purple : themePalette.red;
+    var eyeColor = monster.variant === 2 ? themePalette.green : themePalette.white;
     context.fillStyle = bodyColor;
-    context.fillRect((this.middleX - 2) * 10, (this.middleY - 1) * 10, 50, 20);
-    context.fillRect((this.middleX - 1) * 10, (this.middleY - 2) * 10, 30, 10);
-    context.fillRect((this.middleX - 1) * 10, (this.middleY + 1) * 10, 10, 10);
-    context.fillRect((this.middleX + 1) * 10, (this.middleY + 1) * 10, 10, 10);
+    context.fillRect(monster.x - 22, monster.y - 9, 44, 18);
+    context.fillRect(monster.x - 13, monster.y - 18, 26, 9);
+    context.fillRect(monster.x - 13, monster.y + 9, 8, 10);
+    context.fillRect(monster.x + 5, monster.y + 9, 8, 10);
     context.fillStyle = "#050205";
-    context.fillRect((this.middleX - 1) * 10 + 2, (this.middleY - 1) * 10 + 3, 7, 7);
-    context.fillRect((this.middleX + 1) * 10 + 1, (this.middleY - 1) * 10 + 3, 7, 7);
+    context.fillRect(monster.x - 10, monster.y - 5, 7, 7);
+    context.fillRect(monster.x + 3, monster.y - 5, 7, 7);
     context.fillStyle = eyeColor;
-    context.fillRect((this.middleX - 1) * 10 + 4, (this.middleY - 1) * 10 + 5, 3, 3);
-    context.fillRect((this.middleX + 1) * 10 + 3, (this.middleY - 1) * 10 + 5, 3, 3);
+    context.fillRect(monster.x - 8, monster.y - 3, 3, 3);
+    context.fillRect(monster.x + 5, monster.y - 3, 3, 3);
 }
 
-function nightBossDimension() {
-    var x = [];
-    var y = [];
-    for (var dx = -6; dx <= 6; dx++) {
-        for (var dy = -3; dy <= 4; dy++) {
-            if (Math.abs(dx) < 6 || Math.abs(dy) < 3) {
-                x.push(Math.round(this.middleX + dx));
-                y.push(Math.round(this.middleY + dy));
-            }
-        }
+function drawPlayer() {
+    var player = strangerArcadeState.player;
+    if (player.invuln > 0 && player.invuln % 6 < 3) {
+        context.globalAlpha = 0.5;
     }
-    return [x, y];
-}
-
-function nightBossUpdate() {
-    this.frameCounter++;
-    if (!this.spawnAnnounced) {
-        this.spawnAnnounced = true;
-        simplyPlaySound(sfx5 || sfx1);
-        addNightBurst(this.middleX, this.middleY, themePalette.amber, 14, 1.25);
-    }
-    if (this.middleY < 14) {
-        this.middleY += 0.25;
-    }
-    this.middleX += this.direction * 0.35;
-    if (this.middleX > 69 || this.middleX < 11) {
-        this.direction *= -1;
-    }
-}
-
-function nightBossRender() {
-    var flicker = aniCount % 18 < 9;
-    context.fillStyle = flicker ? "#5a1028" : themePalette.purple;
-    context.fillRect((this.middleX - 6) * 10, (this.middleY - 2) * 10, 130, 50);
-    context.fillRect((this.middleX - 4) * 10, (this.middleY - 4) * 10, 90, 30);
-    context.fillRect((this.middleX - 8) * 10, this.middleY * 10, 30, 20);
-    context.fillRect((this.middleX + 6) * 10, this.middleY * 10, 30, 20);
+    context.fillStyle = "#b56b3f";
+    context.fillRect(player.x - 12, player.y - 31, 28, 9);
+    context.fillStyle = "#ffd2a6";
+    context.fillRect(player.x - 2, player.y - 23, 9, 9);
+    context.fillStyle = "#253a58";
+    context.fillRect(player.x - 13, player.y - 14, 30, 20);
+    context.fillStyle = "#b7c4d8";
+    context.fillRect(player.x - 22, player.y - 5, 10, 9);
+    context.fillRect(player.x + 18, player.y - 5, 10, 9);
     context.fillStyle = themePalette.red;
-    context.fillRect((this.middleX - 3) * 10, (this.middleY - 2) * 10, 18, 10);
-    context.fillRect((this.middleX + 2) * 10, (this.middleY - 2) * 10, 18, 10);
-    context.fillStyle = themePalette.amber;
-    context.fillRect((this.middleX - 5) * 10, (this.middleY + 3) * 10, 110, 6);
-    context.fillStyle = themePalette.white;
-    context.font = "11px monospace";
-    context.fillText("BOSS", (this.middleX - 2) * 10, (this.middleY + 5) * 10);
-}
-
-function nightBossInvalidate() {
-    if (this.invalid) {
-        return;
-    }
-    this.hp -= 8;
-    addNightBurst(this.middleX, this.middleY, themePalette.red, 8, 0.75);
-    context.globalAlpha = 0.5;
-    context.fillStyle = themePalette.red;
-    context.fillRect(0, 0, oldestWidth, oldestHeight);
+    context.fillRect(player.x - 2, player.y - 2, 10, 10);
+    context.fillStyle = "#1a1d2c";
+    context.fillRect(player.x - 12, player.y + 8, 9, 10);
+    context.fillRect(player.x + 10, player.y + 8, 9, 10);
+    context.fillStyle = "#ffec91";
+    context.fillRect(player.x - 12, player.y - 40, 28, 4);
     context.globalAlpha = 1;
-    if (this.hp <= 0) {
-        addNightBurst(this.middleX, this.middleY, themePalette.amber, 20, 2.2);
-        simplyPlaySound(sfx1);
-        this.invalid = true;
-    }
 }
 
-function nightMonsterInvalidate() {
-    if (this.invalid) {
+function drawBoss() {
+    var boss = strangerArcadeState.boss;
+    if (!boss) {
         return;
     }
-    addNightBurst(this.middleX, this.middleY, this.variant === 2 ? themePalette.green : themePalette.red, 10, 0.72);
-    this.invalid = true;
-}
-
-function createNightMonster(x, y, levelIndex, variant) {
-    var monster = new Enemy(
-        x,
-        y,
-        nightMonsterDimension,
-        nightMonsterUpdate,
-        nightMonsterRender,
-        10 + levelIndex * 2,
-        true,
-        1,
-        nightMonsterInvalidate
-    );
-    monster.speed = 0.55 + levelIndex * 0.08 + (variant % 2) * 0.18;
-    monster.wobble = variant === 2 ? 0.22 : 0;
-    monster.variant = variant;
-    return monster;
-}
-
-function createNightBoss(levelIndex) {
-    var boss = new Enemy(
-        40,
-        8,
-        nightBossDimension,
-        nightBossUpdate,
-        nightBossRender,
-        30,
-        true,
-        10,
-        nightBossInvalidate,
-        70 + levelIndex * 28
-    );
-    boss.direction = levelIndex % 2 ? -1 : 1;
-    return boss;
-}
-
-function nightGateLoader(levelIndex) {
-    background = makeNightBackground();
-    level_names[levelIndex] = nightLevelNames[levelIndex] || nightLevelNames[0];
-
-    var frame = 20;
-    var waves = 18 + levelIndex * 5;
-    for (var i = 0; i < waves; i++) {
-        var x = 8 + ((i * 13 + levelIndex * 7) % 65);
-        var variant = i % 3;
-        Spawn.createAndAddSpawn(frame, createNightMonster(x, -4, levelIndex, variant));
-        frame += Math.max(14, 30 - levelIndex * 3);
-    }
-
-    giant_boss = createNightBoss(levelIndex);
-    Spawn.createAndAddSpawn(frame + 42, giant_boss);
-}
-
-earthLoader = function () {
-    nightGateLoader(0);
-};
-
-solarSystemLoader = function () {
-    nightGateLoader(1);
-};
-
-universeLoader = function () {
-    nightGateLoader(2);
-};
-
-blinkyHomeworldLoader = function () {
-    nightGateLoader(3);
-};
-
-metallicMoonLoader = function () {
-    nightGateLoader(4);
-};
-
-checkLeaveLevel = function () {
-    if (player.health <= 0) {
-        loseLife();
-    }
-    if (giant_boss !== null && giant_boss.invalid) {
-        player.level = (player.level + 1) % 5;
-        loadLevel();
-    }
-};
-
-boot = function () {
-    initGame(0);
-};
-
-gamePause = function () {
-    validateReleasedState();
-    selectedOption = selectedOption > 1 ? 0 : selectedOption;
-
-    if (pause && pauseReleased) {
-        pauseReleased = false;
-        safelyPlay(player.level < 4 ? bgm : bgm_special, false);
-        exchangeRenderLoop(gamePlay, true);
-        return;
-    }
-
-    if ((left || up) && axisXReleased) {
-        selectedOption = 0;
-        axisXReleased = false;
-        simplyPlaySound(sfx4);
-    } else if ((right || down) && axisXReleased) {
-        selectedOption = 1;
-        axisXReleased = false;
-        simplyPlaySound(sfx4);
-    }
-
-    if (shoot && shootReleased) {
-        shootReleased = false;
-        simplyPlaySound(sfx4);
-        if (selectedOption === 0) {
-            safelyPlay(player.level < 4 ? bgm : bgm_special, false);
-            exchangeRenderLoop(gamePlay, true);
-        } else {
-            window.parent.postMessage({ type: "final-fate-exit" }, window.location.origin);
-        }
-        return;
-    }
-
-    window.requestAnimationFrame(renderInGame);
-};
-
-pauseText = ["Continue", "Exit"];
-youSure = ["No", "Yes"];
-youSureQuestion = ["Exit game?"];
-
-renderHUD = function () {
-    var danger = player.health < 40 && aniCount % 40 < 20;
-    context.fillStyle = danger ? "#5a0d16" : "#08101b";
-    context.fillRect(0, 550, 800, 50);
+    context.fillStyle = boss.hitFlash > 0 ? themePalette.white : (boss.age % 18 < 9 ? "#5a1028" : themePalette.purple);
+    context.fillRect(boss.x - 66, boss.y - 24, 132, 50);
+    context.fillRect(boss.x - 44, boss.y - 54, 88, 32);
+    context.fillRect(boss.x - 86, boss.y - 4, 30, 20);
+    context.fillRect(boss.x + 56, boss.y - 4, 30, 20);
     context.fillStyle = themePalette.red;
-    context.fillRect(0, 550, 800, 2);
+    context.fillRect(boss.x - 28, boss.y - 14, 18, 10);
+    context.fillRect(boss.x + 10, boss.y - 14, 18, 10);
+    context.fillStyle = themePalette.amber;
+    context.fillRect(boss.x - 52, boss.y + 34, 104, 6);
     context.fillStyle = themePalette.white;
-    context.font = "25px monospace";
-    context.fillText(player.score, 0, 581);
-    context.fillText(player.health, 245, 581);
-    context.fillText(player.lifes, 350, 581);
-    context.fillText(player.level + 1, 700, 581);
+    context.font = "13px monospace";
+    context.fillText("BOSS " + boss.hp + "/10", boss.x - 42, boss.y + 56);
+}
+
+function drawProjectiles() {
+    var state = strangerArcadeState;
+    context.fillStyle = "#fff1a8";
+    state.bullets.forEach(function (bullet) {
+        context.fillRect(bullet.x - 3, bullet.y - 18, 6, 22);
+        context.fillStyle = themePalette.red;
+        context.fillRect(bullet.x - 4, bullet.y - 24, 8, 8);
+        context.fillStyle = "#fff1a8";
+    });
+    context.fillStyle = themePalette.blue;
+    state.bossBullets.forEach(function (bullet) {
+        context.fillRect(bullet.x - 5, bullet.y - 5, 10, 10);
+        context.fillRect(bullet.x - 2, bullet.y - 12, 4, 24);
+    });
+}
+
+function drawExplosions() {
+    strangerArcadeState.explosions.forEach(function (explosion) {
+        var progress = explosion.age / explosion.life;
+        var radius = (10 + progress * 42) * explosion.size;
+        context.globalAlpha = Math.max(0, 1 - progress);
+        context.fillStyle = explosion.color;
+        context.fillRect(explosion.x - radius, explosion.y - 4, radius * 2, 8);
+        context.fillRect(explosion.x - 4, explosion.y - radius, 8, radius * 2);
+        context.fillStyle = themePalette.amber;
+        context.fillRect(explosion.x - radius / 3, explosion.y - radius / 3, radius * 0.66, radius * 0.66);
+        context.globalAlpha = 1;
+    });
+}
+
+function drawHud() {
+    var state = strangerArcadeState;
+    context.fillStyle = "#08101b";
+    context.fillRect(0, 550, 800, 50);
+    context.fillStyle = themePalette.white;
+    context.font = "24px monospace";
+    context.fillText(state.score, 0, 581);
+    context.fillText(state.lives, 245, 581);
+    context.fillText(state.cycle + "/10", 350, 581);
+    context.fillText(monsterCountForCycle(state.cycle), 690, 581);
     context.font = "12px monospace";
     context.fillStyle = themePalette.amber;
     context.fillText("SCORE", 0, 595);
-    context.fillText("SIGNAL", 245, 595);
-    context.fillText("LIVES", 350, 595);
-    context.fillText("GATE", 700, 595);
-};
+    context.fillText("LIVES", 245, 595);
+    context.fillText("CYCLE", 350, 595);
+    context.fillText("WAVE", 690, 595);
+}
 
-title_and_copyright_render = function () {
-    clearScreen();
-    context.font = "58px Georgia, serif";
+function drawOverlay(text, subtext) {
+    context.globalAlpha = 0.78;
+    context.fillStyle = "#050205";
+    context.fillRect(0, 0, 800, 600);
+    context.globalAlpha = 1;
+    context.textAlign = "center";
     context.fillStyle = themePalette.red;
-    context.shadowColor = themePalette.red;
-    context.shadowBlur = 18;
-    context.fillText("NIGHT GATE", 190, 145);
-    context.shadowBlur = 0;
-    context.font = "20px monospace";
-    context.fillStyle = themePalette.blue;
-    context.fillText("ARCADE INCIDENT FILE 1986", 228, 185);
-    context.font = "14px monospace";
+    context.font = "46px Georgia, serif";
+    context.fillText(text, 400, 255);
     context.fillStyle = themePalette.white;
-    context.fillText("Original engine: The Final Fate / MIT", 226, 580);
-    context.fillText("Retro-horror reskin", 535, 580);
+    context.font = "18px monospace";
+    context.fillText(subtext, 400, 294);
+    context.textAlign = "left";
+}
+
+function drawArcade() {
+    var state = strangerArcadeState;
+    drawBackground();
+    state.monsters.forEach(drawMonster);
+    drawBoss();
+    drawProjectiles();
+    drawExplosions();
+    drawPlayer();
+    drawHud();
+    if (strangerArcadePaused) {
+        drawOverlay("PAUSED", "ENTER TO RESUME");
+    } else if (state.gameOver) {
+        drawOverlay("GAME OVER", "SPACE / FIRE TO RESTART");
+    } else if (state.complete) {
+        drawOverlay("SURVIVED", "SPACE / FIRE TO RESTART");
+    }
+}
+
+function strangerArcadeLoop(timestamp) {
+    if (!strangerArcadeStarted) {
+        return;
+    }
+    strangerArcadeFrame = window.requestAnimationFrame(strangerArcadeLoop);
+    if (timestamp - strangerArcadeLastTick < 33) {
+        return;
+    }
+    strangerArcadeLastTick = timestamp;
+    updateArcade();
+    drawArcade();
+}
+
+function startStrangerArcade() {
+    if (strangerArcadeStarted) {
+        return;
+    }
+    strangerArcadeStarted = true;
+    strangerArcadePaused = false;
+    if (renderTimer !== null) {
+        clearInterval(renderTimer);
+        renderTimer = null;
+    }
+    context.imageSmoothingEnabled = false;
+    resetArcadeGame();
+    strangerArcadeLastTick = 0;
+    strangerArcadeFrame = window.requestAnimationFrame(strangerArcadeLoop);
+}
+
+boot = function () {
+    startStrangerArcade();
 };
 
 window.addEventListener("message", function (event) {
     if (event.origin !== window.location.origin || !event.data || event.data.type !== "final-fate-muted") {
         return;
     }
-    masterVolume = event.data.muted ? 0 : 58;
-    [bgm, bgm_special, bgm_sus, sfx0, sfx1, sfx2, sfx3, sfx4, sfx5, game_over].forEach(function (media) {
+    strangerArcadeMuted = Boolean(event.data.muted);
+    masterVolume = strangerArcadeMuted ? 0 : 100;
+    [sfx0, sfx1, sfx2, sfx3, sfx4, sfx5, game_over].forEach(function (media) {
         if (media) {
-            media.muted = Boolean(event.data.muted);
+            media.muted = strangerArcadeMuted;
             media.volume = masterVolume / 100;
         }
     });
@@ -424,22 +621,14 @@ window.addEventListener("message", function (event) {
 
 document.addEventListener("visibilitychange", function () {
     if (document.hidden) {
-        if (renderTimer !== null) {
-            clearInterval(renderTimer);
-            renderTimer = null;
+        if (strangerArcadeFrame !== null) {
+            window.cancelAnimationFrame(strangerArcadeFrame);
+            strangerArcadeFrame = null;
         }
-        [bgm, bgm_special, bgm_sus].forEach(function (media) {
-            if (media) {
-                media.pause();
-            }
-        });
         return;
     }
-
-    if (renderTimer === null && renderFunction) {
-        exchangeRenderLoop(renderFunction, true);
-    }
-    if (renderFunction === gamePlay && masterVolume > 0) {
-        safelyPlay(player.level < 4 ? bgm : bgm_special, false);
+    if (strangerArcadeStarted && strangerArcadeFrame === null) {
+        strangerArcadeLastTick = 0;
+        strangerArcadeFrame = window.requestAnimationFrame(strangerArcadeLoop);
     }
 });

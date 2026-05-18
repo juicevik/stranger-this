@@ -30,15 +30,15 @@ describe('App routing', () => {
 
     await user.click(screen.getByRole('button', { name: /^START$/i }));
 
-    expect(screen.getByTitle('The Final Fate browser game')).toHaveAttribute('src', '/game/final-fate/index.html');
+    expect(screen.getByTitle('Stranger Things browser game')).toHaveAttribute('src', '/game/final-fate/index.html');
     expect(screen.getByRole('button', { name: /выйти/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /развернуть/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /свернуть игру/i })).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: /развернуть/i }));
-    expect(screen.getByRole('button', { name: /свернуть/i })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /свернуть игру/i }));
+    expect(screen.getByRole('button', { name: /развернуть игру/i })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /выйти/i }));
-    expect(screen.queryByTitle('The Final Fate browser game')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('Stranger Things browser game')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^START$/i })).toBeInTheDocument();
   });
 

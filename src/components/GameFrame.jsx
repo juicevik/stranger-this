@@ -20,6 +20,8 @@ const setFrameMediaMuted = (frame, isMuted) => {
   });
 };
 
+const canFocusFrameWindow = () => !navigator.userAgent.toLowerCase().includes('jsdom');
+
 const GameFrame = forwardRef(({ isMuted, onLoad }, ref) => {
   const frameRef = useRef(null);
 
@@ -33,7 +35,9 @@ const GameFrame = forwardRef(({ isMuted, onLoad }, ref) => {
 
   const focusGame = useCallback(() => {
     frameRef.current?.focus();
-    frameRef.current?.contentWindow?.focus();
+    if (canFocusFrameWindow()) {
+      frameRef.current?.contentWindow?.focus();
+    }
   }, []);
 
   useImperativeHandle(ref, () => ({

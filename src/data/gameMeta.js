@@ -1,6 +1,6 @@
 export const gameMeta = {
-  id: 'the-final-fate',
-  title: 'The Final Fate',
+  id: 'stranger-things',
+  title: 'Stranger Things',
   sourceUrl: 'https://github.com/MengelCode/finalfate',
   author: 'Manuel Engel / MengelCode',
   license: 'MIT',

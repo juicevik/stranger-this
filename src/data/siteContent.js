@@ -171,13 +171,13 @@ export const portfolioProjects = [
     },
   },
   {
-    title: 'Stranger This',
+    title: 'Stranger Things',
     url: 'https://stranger-this-kalyakin.vercel.app/',
     preview: '/stranger-this-preview.png',
-    alt: 'Stranger This browser game preview',
+    alt: 'Stranger Things browser arcade preview',
     description: {
-      ru: 'Браузерная ретро-игра в атмосфере темной комнаты 80-х с CRT-экраном, монстрами и мобильным управлением.',
-      en: 'A browser retro game in a dark 80s room with a CRT screen, monsters, and mobile controls.',
+      ru: 'Браузерная ретро-аркада с атмосферной 80s-комнатой, CRT-интерфейсом, адаптивным управлением и wave-based shooter-геймплеем.',
+      en: 'A browser-based retro arcade experience with an atmospheric 80s room, CRT interface, responsive controls, and wave-based shooter gameplay.',
     },
   },
   {
@@ -195,8 +195,8 @@ export const portfolioProjects = [
 export const pageSeo = {
   ru: {
     home: {
-      title: 'The Final Fate - браузерная ретро-игра в комнате 80-х',
-      description: 'Атмосферная стартовая сцена с CRT-компьютером и встроенной HTML5-игрой The Final Fate внутри экрана старого ПК.',
+      title: 'Stranger Things - браузерная ретро-аркада в комнате 80-х',
+      description: 'Атмосферная стартовая сцена с CRT-компьютером и встроенной HTML5-аркадой Stranger Things внутри экрана старого ПК.',
     },
     about: {
       title: 'Обо мне - Viktor Kalyakin',
@@ -204,7 +204,7 @@ export const pageSeo = {
     },
     portfolio: {
       title: 'Портфолио - Viktor Kalyakin',
-      description: 'Портфолио Виктора Калякина: Rodina, Geometriya, Kalyakin Desktop, WorkerWP Store и другие веб-проекты.',
+      description: 'Портфолио Виктора Калякина: Rodina, Geometriya, Kalyakin Desktop, Stranger Things, WorkerWP Store и другие веб-проекты.',
     },
     privacy: {
       title: 'Политика конфиденциальности - Viktor Kalyakin',
@@ -222,7 +222,7 @@ export const pageSeo = {
     },
     portfolio: {
       title: 'Portfolio - Viktor Kalyakin',
-      description: 'Viktor Kalyakin portfolio: Rodina, Geometriya, Kalyakin Desktop, WorkerWP Store, and other web projects.',
+      description: 'Viktor Kalyakin portfolio: Rodina, Geometriya, Kalyakin Desktop, Stranger Things, WorkerWP Store, and other web projects.',
     },
     privacy: {
       title: 'Privacy Policy - Viktor Kalyakin',
