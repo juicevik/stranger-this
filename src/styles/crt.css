@@ -73,13 +73,13 @@
 
 .game-room-touch.game-room-expanded .reference-crt-expanded {
   position: fixed;
-  top: var(--app-visual-offset-top, 0);
-  left: var(--app-visual-offset-left, 0);
+  top: 0;
+  left: 0;
   right: auto;
   bottom: auto;
   z-index: 5;
-  width: var(--app-visual-width, 100vw);
-  height: var(--app-visual-height, 100dvh);
+  width: 100vw;
+  height: 100dvh;
   transform: none;
   border-radius: 0;
   box-shadow: none;

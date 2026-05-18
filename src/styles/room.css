@@ -28,8 +28,8 @@
 
 .game-room-touch.game-room-landscape:not(.game-room-expanded) .reference-room-stage {
   top: 50%;
-  width: min(100vw, calc(100svh * 1535 / 1024));
-  height: min(100svh, calc(100vw * 1024 / 1535));
+  width: max(100vw, calc(100dvh * 1535 / 1024));
+  height: max(100dvh, calc(100vw * 1024 / 1535));
   transform: translate(-50%, -50%);
   box-shadow: 0 0 60px rgba(0, 0, 0, 0.78);
 }
@@ -365,23 +365,23 @@
   place-items: center;
   border: 1px solid rgba(255, 77, 57, 0.24);
   border-radius: 50%;
-  background: rgba(8, 5, 8, 0.16);
-  color: rgba(255, 228, 213, 0.28);
+  background: rgba(8, 5, 8, 0.08);
+  color: rgba(255, 228, 213, 0.16);
   text-align: center;
   box-shadow:
-    0 0 10px rgba(255, 37, 28, 0.09),
-    inset 0 0 12px rgba(255, 37, 28, 0.05);
+    0 0 8px rgba(255, 37, 28, 0.05),
+    inset 0 0 10px rgba(255, 37, 28, 0.03);
   transform: translateX(-50%);
   pointer-events: none;
 }
 
 .mobile-game-zone:active span {
   border-color: rgba(255, 77, 57, 0.9);
-  background: rgba(112, 14, 18, 0.34);
-  color: rgba(255, 255, 255, 0.58);
+  background: rgba(112, 14, 18, 0.26);
+  color: rgba(255, 255, 255, 0.42);
   box-shadow:
-    0 0 22px rgba(255, 55, 40, 0.28),
-    inset 0 0 20px rgba(255, 55, 40, 0.12);
+    0 0 18px rgba(255, 55, 40, 0.18),
+    inset 0 0 16px rgba(255, 55, 40, 0.08);
 }
 
 .mobile-game-zone-left {
@@ -410,10 +410,10 @@
 .mobile-game-zone-fire span {
   right: calc(28px + env(safe-area-inset-right));
   left: auto;
-  border-color: rgba(255, 175, 78, 0.24);
-  color: rgba(255, 223, 171, 0.3);
+  border-color: rgba(255, 175, 78, 0.14);
+  color: rgba(255, 223, 171, 0.18);
   box-shadow:
-    0 0 12px rgba(255, 123, 43, 0.1),
-    inset 0 0 12px rgba(255, 123, 43, 0.06);
+    0 0 8px rgba(255, 123, 43, 0.06),
+    inset 0 0 10px rgba(255, 123, 43, 0.03);
   transform: none;
 }

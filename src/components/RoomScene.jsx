@@ -397,7 +397,7 @@ const RoomScene = () => {
         <GameSessionControls
           isExpanded={isExpanded}
           isFullscreenActive={isNativeFullscreen}
-          showFullscreenButton={hasStarted && isTouchLayout}
+          showFullscreenButton={hasStarted && isTouchLayout && isExpanded}
           onExit={handleExit}
           onToggleExpanded={handleToggleExpanded}
           onEnterFullscreen={handleEnterFullscreen}
