@@ -41,11 +41,11 @@
 }
 
 .game-room-touch.game-room-landscape:not(.game-room-expanded) .reference-room-stage {
-  top: 0;
-  width: max(100vw, calc(100dvh * 1535 / 1024));
-  height: max(100dvh, calc(100vw * 1024 / 1535));
-  transform: translateX(-50%) translateY(-30%);
-  box-shadow: 0 0 60px rgba(0, 0, 0, 0.78);
+  top: 50%;
+  width: min(100vw, calc(100dvh * 1535 / 1024));
+  height: min(100dvh, calc(100vw * 1024 / 1535));
+  transform: translate(-50%, -50%);
+  box-shadow: none;
 }
 
 .game-room-touch.game-room-expanded .reference-room-stage {
