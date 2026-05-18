@@ -39,6 +39,25 @@ const RoomScene = () => {
   const gameFrameRef = useRef(null);
   const isMutedRef = useRef(isMuted);
 
+  const playSiteAudio = useCallback(() => {
+    const audio = siteAudioRef.current;
+    if (!audio || isMutedRef.current || !canUseMediaPlayback()) {
+      return Promise.resolve(false);
+    }
+
+    audio.muted = false;
+    audio.volume = 1;
+
+    const playResult = audio.play();
+    if (!playResult || typeof playResult.then !== 'function') {
+      return Promise.resolve(true);
+    }
+
+    return playResult
+      .then(() => true)
+      .catch(() => false);
+  }, []);
+
   useEffect(() => {
     const updateViewport = () => {
       setViewportType(getViewportType());
@@ -58,18 +77,40 @@ const RoomScene = () => {
   }, [isMuted]);
 
   useEffect(() => {
-    const audio = new Audio('/audio/stranger-think.m4a');
+    const audio = document.createElement('audio');
+    audio.src = '/audio/stranger-think.m4a';
     audio.loop = true;
     audio.preload = 'auto';
+    audio.autoplay = true;
     audio.volume = 1;
+    audio.hidden = true;
+    audio.setAttribute('playsinline', '');
+    audio.setAttribute('webkit-playsinline', '');
+    document.body.appendChild(audio);
     siteAudioRef.current = audio;
+    let isDisposed = false;
+    let unlockListenersActive = true;
+    const unlockEvents = ['pointerdown', 'touchstart', 'click', 'keydown'];
+    const unlockListenerOptions = { capture: true };
 
-    const tryPlay = () => {
-      if (!canUseMediaPlayback() || isMutedRef.current) {
+    const removeUnlockListeners = () => {
+      if (!unlockListenersActive) {
         return;
       }
-      audio.play().catch(() => {});
+      unlockEvents.forEach((eventName) => {
+        document.removeEventListener(eventName, tryPlay, unlockListenerOptions);
+      });
+      unlockListenersActive = false;
     };
+
+    const tryPlay = () => {
+      playSiteAudio().then((didPlay) => {
+        if (didPlay && !isDisposed) {
+          removeUnlockListeners();
+        }
+      });
+    };
+
     const handleVisibilityChange = () => {
       if (document.hidden) {
         if (canUseMediaPlayback()) {
@@ -77,26 +118,28 @@ const RoomScene = () => {
         }
         return;
       }
-      if (!isMutedRef.current) {
-        audio.play().catch(() => {});
-      }
+      tryPlay();
     };
 
+    unlockEvents.forEach((eventName) => {
+      document.addEventListener(eventName, tryPlay, unlockListenerOptions);
+    });
+    audio.addEventListener('loadeddata', tryPlay);
     tryPlay();
-    window.addEventListener('pointerdown', tryPlay, { once: true });
-    window.addEventListener('keydown', tryPlay, { once: true });
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
+      isDisposed = true;
+      removeUnlockListeners();
       if (canUseMediaPlayback()) {
         audio.pause();
       }
-      window.removeEventListener('pointerdown', tryPlay);
-      window.removeEventListener('keydown', tryPlay);
+      audio.removeEventListener('loadeddata', tryPlay);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       siteAudioRef.current = null;
+      audio.remove();
     };
-  }, []);
+  }, [playSiteAudio]);
 
   useEffect(() => {
     const audio = siteAudioRef.current;
@@ -109,28 +152,21 @@ const RoomScene = () => {
   }, [isMuted]);
 
   const handleStart = useCallback(() => {
-    const audio = siteAudioRef.current;
-    if (audio && !isMutedRef.current && canUseMediaPlayback()) {
-      audio.play().catch(() => {});
-    }
+    playSiteAudio();
     setIsGameLoaded(false);
     setIsExpanded(true);
     setHasStarted(true);
     window.setTimeout(() => gameFrameRef.current?.focus(), 80);
-  }, []);
+  }, [playSiteAudio]);
 
   const handleExit = useCallback(() => {
     setHasStarted(false);
     setIsGameLoaded(false);
     setIsExpanded(false);
     window.setTimeout(() => {
-      const audio = siteAudioRef.current;
-      if (!audio || isMutedRef.current || !canUseMediaPlayback()) {
-        return;
-      }
-      audio.play().catch(() => {});
+      playSiteAudio();
     }, 0);
-  }, []);
+  }, [playSiteAudio]);
 
   useEffect(() => {
     const receiveGameMessage = (event) => {
@@ -203,10 +239,7 @@ const RoomScene = () => {
               }
               audio.muted = false;
               audio.volume = 1;
-              if (!canUseMediaPlayback()) {
-                return;
-              }
-              audio.play().catch(() => {});
+              playSiteAudio();
             }, 0);
           }
         }}
