@@ -342,14 +342,14 @@
   border-radius: 0;
   background: transparent;
   color: #ffe4d5;
-  font-size: 0.72rem;
+  font-size: 1.38rem;
   font-weight: 900;
   letter-spacing: 0;
   text-transform: uppercase;
   pointer-events: auto;
   box-shadow:
-    0 0 24px rgba(255, 37, 28, 0.24),
-    inset 0 0 22px rgba(255, 37, 28, 0.11);
+    0 0 12px rgba(255, 37, 28, 0.08),
+    inset 0 0 12px rgba(255, 37, 28, 0.04);
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   touch-action: none;
@@ -359,35 +359,48 @@
   position: absolute;
   bottom: calc(22px + env(safe-area-inset-bottom));
   left: 50%;
-  min-width: 74px;
-  padding: 11px 12px;
-  border: 1px solid rgba(255, 77, 57, 0.54);
-  border-radius: 8px;
-  background: rgba(8, 5, 8, 0.34);
-  color: rgba(255, 228, 213, 0.6);
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 77, 57, 0.24);
+  border-radius: 50%;
+  background: rgba(8, 5, 8, 0.16);
+  color: rgba(255, 228, 213, 0.28);
   text-align: center;
   box-shadow:
-    0 0 18px rgba(255, 37, 28, 0.18),
-    inset 0 0 18px rgba(255, 37, 28, 0.09);
+    0 0 10px rgba(255, 37, 28, 0.09),
+    inset 0 0 12px rgba(255, 37, 28, 0.05);
   transform: translateX(-50%);
   pointer-events: none;
 }
 
 .mobile-game-zone:active span {
   border-color: rgba(255, 77, 57, 0.9);
-  background: rgba(112, 14, 18, 0.52);
-  color: rgba(255, 255, 255, 0.78);
+  background: rgba(112, 14, 18, 0.34);
+  color: rgba(255, 255, 255, 0.58);
   box-shadow:
-    0 0 28px rgba(255, 55, 40, 0.46),
-    inset 0 0 26px rgba(255, 55, 40, 0.18);
+    0 0 22px rgba(255, 55, 40, 0.28),
+    inset 0 0 20px rgba(255, 55, 40, 0.12);
 }
 
 .mobile-game-zone-left {
   grid-column: 1;
 }
 
+.mobile-game-zone-left span {
+  right: 8px;
+  left: auto;
+  transform: none;
+}
+
 .mobile-game-zone-right {
   grid-column: 2;
+}
+
+.mobile-game-zone-right span {
+  left: 8px;
+  transform: none;
 }
 
 .mobile-game-zone-fire {
@@ -395,9 +408,12 @@
 }
 
 .mobile-game-zone-fire span {
-  border-color: rgba(255, 175, 78, 0.58);
-  color: rgba(255, 223, 171, 0.6);
+  right: calc(28px + env(safe-area-inset-right));
+  left: auto;
+  border-color: rgba(255, 175, 78, 0.24);
+  color: rgba(255, 223, 171, 0.3);
   box-shadow:
-    0 0 22px rgba(255, 123, 43, 0.2),
-    inset 0 0 18px rgba(255, 123, 43, 0.12);
+    0 0 12px rgba(255, 123, 43, 0.1),
+    inset 0 0 12px rgba(255, 123, 43, 0.06);
+  transform: none;
 }
