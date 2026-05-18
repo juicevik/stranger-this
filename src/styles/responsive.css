@@ -70,10 +70,6 @@
     background: rgba(4, 3, 5, 0.74);
   }
 
-  .game-room-touch.game-room-expanded .game-session-button:first-child {
-    min-width: 70px;
-  }
-
   .game-room-touch.game-room-expanded .game-session-button-expand,
   .game-room-touch.game-room-expanded .game-session-button-fullscreen {
     width: 42px;
@@ -132,10 +128,6 @@
     min-height: 40px;
     padding: 0 13px;
     background: rgba(4, 3, 5, 0.74);
-  }
-
-  .game-room-touch.game-room-expanded .game-session-button:first-child {
-    min-width: 70px;
   }
 
   .game-room-touch.game-room-expanded .game-session-button-expand,

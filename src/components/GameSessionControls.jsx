@@ -5,7 +5,6 @@ const GameSessionControls = ({
   isFullscreenActive = false,
   showExpandToggle = true,
   showFullscreenButton = false,
-  onExit,
   onToggleExpanded,
   onEnterFullscreen,
 }) => (
@@ -13,9 +12,6 @@ const GameSessionControls = ({
     className={`game-session-controls ${isExpanded ? 'game-session-controls-expanded' : ''}`}
     aria-label="Управление игровой сессией"
   >
-    <button className="game-session-button" type="button" onClick={onExit}>
-      Выйти
-    </button>
     {showExpandToggle && (
       <button
         className="game-session-button game-session-button-expand"

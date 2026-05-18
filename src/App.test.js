@@ -31,15 +31,11 @@ describe('App routing', () => {
     await user.click(screen.getByRole('button', { name: /^START$/i }));
 
     expect(screen.getByTitle('Stranger Things browser game')).toHaveAttribute('src', '/game/final-fate/index.html');
-    expect(screen.getByRole('button', { name: /выйти/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /выйти/i })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /свернуть игру/i })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /свернуть игру/i }));
     expect(screen.getByRole('button', { name: /развернуть игру/i })).toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: /выйти/i }));
-    expect(screen.queryByTitle('Stranger Things browser game')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /^START$/i })).toBeInTheDocument();
   });
 
   test('renders English homepage', () => {
