@@ -37,8 +37,9 @@ function simplyPlaySound(soundObject) {
  * @returns {undefined}
  */
 function sizeChanged() {
-    newWidth = window.innerWidth;
-    newHeight = window.innerHeight;
+    var viewport = window.visualViewport;
+    newWidth = Math.round(viewport ? viewport.width : window.innerWidth);
+    newHeight = Math.round(viewport ? viewport.height : window.innerHeight);
     canvas.setAttribute("width", newWidth);
     canvas.setAttribute("height", newHeight);
     //context.scale(newWidth / oldWidth, newHeight / oldHeight);

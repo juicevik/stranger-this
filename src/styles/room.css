@@ -15,6 +15,20 @@
   overscroll-behavior: none;
 }
 
+.game-room-touch {
+  min-height: 100dvh;
+  touch-action: none;
+}
+
+.game-room-touch.game-room-expanded {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
 .reference-room-stage {
   position: absolute;
   left: 50%;
@@ -32,6 +46,23 @@
   height: max(100dvh, calc(100vw * 1024 / 1535));
   transform: translate(-50%, -50%);
   box-shadow: 0 0 60px rgba(0, 0, 0, 0.78);
+}
+
+.game-room-touch.game-room-expanded .reference-room-stage {
+  position: fixed;
+  inset: 0;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100dvh;
+  transform: none;
+  overflow: visible;
+  box-shadow: none;
+}
+
+.game-room-touch.game-room-expanded .reference-room-image,
+.game-room-touch.game-room-expanded .reference-room-stage::after {
+  display: none;
 }
 
 .reference-room-image {

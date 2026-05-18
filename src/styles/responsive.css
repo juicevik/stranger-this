@@ -101,7 +101,17 @@
   }
 
   .game-room-touch.game-room-landscape:not(.game-room-expanded) .reference-header-mask {
-    height: clamp(44px, 11svh, 70px);
+    display: none;
+  }
+
+  .game-room-touch.game-room-landscape:not(.game-room-expanded) .game-session-controls {
+    top: calc(12px + env(safe-area-inset-top));
+    left: calc(12px + env(safe-area-inset-left));
+  }
+
+  .game-room-touch.game-room-landscape:not(.game-room-expanded) .volume-toggle {
+    top: calc(12px + env(safe-area-inset-top));
+    right: calc(12px + env(safe-area-inset-right));
   }
 
   .game-room-touch.game-room-expanded .reference-header-mask {

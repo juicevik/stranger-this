@@ -170,8 +170,9 @@ const RoomScene = () => {
   }, [syncVisualViewport]);
 
   useEffect(() => {
-    const shouldLockSession = hasStarted && isExpanded && isTouchLayout;
+    const shouldLockSession = isTouchLayout;
     let lastTouchEnd = 0;
+    let lastTouchStart = 0;
 
     document.documentElement.classList.toggle('game-session-lock', shouldLockSession);
     document.body.classList.toggle('game-session-lock', shouldLockSession);
@@ -181,15 +182,25 @@ const RoomScene = () => {
     }
 
     const preventGesture = (event) => event.preventDefault();
+    const preventFastDoubleTouchStart = (event) => {
+      const now = Date.now();
+      if (now - lastTouchStart < 360) {
+        event.preventDefault();
+        syncVisualViewport();
+      }
+      lastTouchStart = now;
+    };
     const preventFastDoubleTap = (event) => {
       const now = Date.now();
       if (now - lastTouchEnd < 360) {
         event.preventDefault();
+        syncVisualViewport();
       }
       lastTouchEnd = now;
     };
 
     syncVisualViewport();
+    document.addEventListener('touchstart', preventFastDoubleTouchStart, { capture: true, passive: false });
     document.addEventListener('dblclick', preventGesture, { capture: true, passive: false });
     document.addEventListener('touchend', preventFastDoubleTap, { capture: true, passive: false });
     document.addEventListener('gesturestart', preventGesture, { capture: true, passive: false });
@@ -198,6 +209,7 @@ const RoomScene = () => {
 
     return () => {
       document.removeEventListener('dblclick', preventGesture, { capture: true, passive: false });
+      document.removeEventListener('touchstart', preventFastDoubleTouchStart, { capture: true, passive: false });
       document.removeEventListener('touchend', preventFastDoubleTap, { capture: true, passive: false });
       document.removeEventListener('gesturestart', preventGesture, { capture: true, passive: false });
       document.removeEventListener('gesturechange', preventGesture, { capture: true, passive: false });
@@ -205,7 +217,7 @@ const RoomScene = () => {
       document.documentElement.classList.remove('game-session-lock');
       document.body.classList.remove('game-session-lock');
     };
-  }, [hasStarted, isExpanded, isTouchLayout, syncVisualViewport]);
+  }, [isTouchLayout, syncVisualViewport]);
 
   useEffect(() => {
     isMutedRef.current = isMuted;

@@ -42,6 +42,10 @@ exchangeRenderLoop(renderFunction);
 initAllInput();
 //Changed window size.
 window.addEventListener("resize", sizeChanged);
+if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", sizeChanged);
+    window.visualViewport.addEventListener("scroll", sizeChanged);
+}
 //Invalidate keyboard input when window focus is lost.
 window.addEventListener("blur",focusLost);
 
@@ -79,4 +83,3 @@ window.addEventListener("blur",focusLost);
 //All dimension matrix functions.
 
 //All update routines.
-

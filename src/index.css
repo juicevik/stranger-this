@@ -12,12 +12,21 @@ body,
 }
 
 html.game-session-lock,
-html.game-session-lock body {
-  height: var(--app-visual-height, 100dvh);
+html.game-session-lock body,
+html.game-session-lock #root {
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  width: 100vw;
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: none;
   -webkit-text-size-adjust: 100%;
   -webkit-user-select: none;
   user-select: none;
+}
+
+html.game-session-lock body {
+  position: fixed;
+  inset: 0;
 }
