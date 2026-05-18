@@ -213,6 +213,13 @@ const RoomScene = () => {
           onGameLoad={() => setIsGameLoaded(true)}
         />
       </div>
+      <a
+        className="portfolio-return-link"
+        href="https://kalyakin.page.gd/portfolio"
+        aria-label="На главную в портфолио сайта"
+      >
+        На главную
+      </a>
       <div className="reference-header-mask" aria-hidden="true" />
       {isTouchLayout && orientation === 'portrait' && !hasStarted && (
         <div className="orientation-prompt" role="status">

@@ -48,6 +48,10 @@
     display: none;
   }
 
+  .game-room-touch.game-room-expanded .portfolio-return-link {
+    display: none;
+  }
+
   .game-room-touch.game-room-expanded .game-session-controls {
     top: calc(12px + env(safe-area-inset-top));
     left: calc(12px + env(safe-area-inset-left));
@@ -98,6 +102,10 @@
   }
 
   .game-room-touch.game-room-expanded .reference-header-mask {
+    display: none;
+  }
+
+  .game-room-touch.game-room-expanded .portfolio-return-link {
     display: none;
   }
 

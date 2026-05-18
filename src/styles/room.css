@@ -39,6 +39,21 @@
   pointer-events: none;
 }
 
+.reference-room-stage::after {
+  position: absolute;
+  left: 62.5%;
+  top: 7.5%;
+  z-index: 1;
+  width: 36.8%;
+  height: 23.5%;
+  content: "";
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 46% 50%, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.34) 46%, rgba(0, 0, 0, 0) 78%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.28) 18%, rgba(0, 0, 0, 0.32) 68%, rgba(0, 0, 0, 0));
+  mix-blend-mode: multiply;
+}
+
 .game-room-touch.game-room-landscape:not(.game-room-expanded)::before {
   position: fixed;
   inset: 0;
@@ -58,6 +73,47 @@
   z-index: 6;
   height: clamp(78px, 10vh, 96px);
   background: #020101;
+}
+
+.portfolio-return-link {
+  position: fixed;
+  left: calc(26px + env(safe-area-inset-left));
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  z-index: 7;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 55, 45, 0.74);
+  border-radius: 6px;
+  background: rgba(5, 3, 5, 0.72);
+  color: #ffe4d5;
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-decoration: none;
+  text-transform: uppercase;
+  box-shadow:
+    0 0 18px rgba(255, 35, 35, 0.28),
+    inset 0 0 16px rgba(255, 35, 35, 0.12);
+  backdrop-filter: blur(5px);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.portfolio-return-link:hover,
+.portfolio-return-link:focus-visible,
+.portfolio-return-link:active {
+  color: #fff7f4;
+  outline: none;
+  background: rgba(86, 12, 14, 0.9);
+  box-shadow:
+    0 0 26px rgba(255, 35, 35, 0.48),
+    inset 0 0 20px rgba(255, 35, 35, 0.22);
+}
+
+.portfolio-return-link:active {
+  transform: translateY(1px);
 }
 
 .orientation-prompt {
