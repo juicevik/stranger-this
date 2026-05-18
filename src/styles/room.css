@@ -1,6 +1,7 @@
 .game-room {
   position: relative;
   min-height: 100vh;
+  min-height: var(--app-visual-height, 100dvh);
   width: 100%;
   overflow: hidden;
   background: #050303;
@@ -8,6 +9,10 @@
   font-family: "Montserrat", Arial, sans-serif;
   isolation: isolate;
   touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior: none;
 }
 
 .reference-room-stage {
@@ -272,12 +277,21 @@
   transform: translateY(1px);
 }
 
-.game-session-button-expand {
+.game-session-button-expand,
+.game-session-button-fullscreen {
   width: 42px;
   min-width: 42px;
   padding: 0;
   font-size: 1.28rem;
   line-height: 1;
+}
+
+.game-session-button-active {
+  border-color: rgba(255, 160, 78, 0.88);
+  color: #fff8ef;
+  box-shadow:
+    0 0 20px rgba(255, 132, 48, 0.38),
+    inset 0 0 16px rgba(255, 132, 48, 0.16);
 }
 
 .mobile-start-button {

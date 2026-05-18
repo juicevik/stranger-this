@@ -27,7 +27,7 @@ renderFunction = boot;
 //Make keys unpressed over time.
 //setInterval(keyInvalidator, FRAME_RATE);
 //Count all the frames.
-setInterval(increaseCount, FRAME_RATE);
+var frameCounterTimer = setInterval(increaseCount, FRAME_RATE);
 //Level background
 var background = null;
 //Last score after boss defeat.
@@ -79,5 +79,4 @@ window.addEventListener("blur",focusLost);
 //All dimension matrix functions.
 
 //All update routines.
-
 

@@ -53,8 +53,8 @@
   }
 
   .game-room-touch.game-room-expanded .game-session-controls {
-    top: calc(12px + env(safe-area-inset-top));
-    left: calc(12px + env(safe-area-inset-left));
+    top: calc(var(--app-visual-offset-top, 0px) + 12px + env(safe-area-inset-top));
+    left: calc(var(--app-visual-offset-left, 0px) + 12px + env(safe-area-inset-left));
     right: auto;
     padding: 0;
     border: 0;
@@ -74,20 +74,27 @@
     min-width: 70px;
   }
 
-  .game-room-touch.game-room-expanded .game-session-button-expand {
+  .game-room-touch.game-room-expanded .game-session-button-expand,
+  .game-room-touch.game-room-expanded .game-session-button-fullscreen {
     width: 42px;
     min-width: 42px;
     padding: 0;
   }
 
   .game-room-touch.game-room-expanded .volume-toggle {
-    top: calc(12px + env(safe-area-inset-top));
-    right: calc(12px + env(safe-area-inset-right));
+    top: calc(var(--app-visual-offset-top, 0px) + 12px + env(safe-area-inset-top));
+    right: calc(100vw - var(--app-visual-offset-left, 0px) - var(--app-visual-width, 100vw) + 12px + env(safe-area-inset-right));
     background: rgba(4, 3, 5, 0.58);
   }
 
   .game-room-touch.game-room-expanded .mobile-game-controls {
     display: grid;
+    top: var(--app-visual-offset-top, 0);
+    left: var(--app-visual-offset-left, 0);
+    right: auto;
+    bottom: auto;
+    width: var(--app-visual-width, 100vw);
+    height: var(--app-visual-height, 100dvh);
   }
 }
 
@@ -110,8 +117,8 @@
   }
 
   .game-room-touch.game-room-expanded .game-session-controls {
-    top: calc(10px + env(safe-area-inset-top));
-    left: calc(12px + env(safe-area-inset-left));
+    top: calc(var(--app-visual-offset-top, 0px) + 10px + env(safe-area-inset-top));
+    left: calc(var(--app-visual-offset-left, 0px) + 12px + env(safe-area-inset-left));
     right: auto;
     padding: 0;
     border: 0;
@@ -131,20 +138,27 @@
     min-width: 70px;
   }
 
-  .game-room-touch.game-room-expanded .game-session-button-expand {
+  .game-room-touch.game-room-expanded .game-session-button-expand,
+  .game-room-touch.game-room-expanded .game-session-button-fullscreen {
     width: 42px;
     min-width: 42px;
     padding: 0;
   }
 
   .game-room-touch.game-room-expanded .volume-toggle {
-    top: calc(10px + env(safe-area-inset-top));
-    right: calc(12px + env(safe-area-inset-right));
+    top: calc(var(--app-visual-offset-top, 0px) + 10px + env(safe-area-inset-top));
+    right: calc(100vw - var(--app-visual-offset-left, 0px) - var(--app-visual-width, 100vw) + 12px + env(safe-area-inset-right));
     background: rgba(4, 3, 5, 0.58);
   }
 
   .game-room-touch.game-room-expanded .mobile-game-controls {
     display: grid;
+    top: var(--app-visual-offset-top, 0);
+    left: var(--app-visual-offset-left, 0);
+    right: auto;
+    bottom: auto;
+    width: var(--app-visual-width, 100vw);
+    height: var(--app-visual-height, 100dvh);
   }
 }
 

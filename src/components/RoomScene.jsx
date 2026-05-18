@@ -27,17 +27,89 @@ const getIsTouchLayout = () => {
   return Boolean(pointerIsCoarse || window.innerWidth <= 920);
 };
 
+const getFullscreenElement = () => (
+  document.fullscreenElement
+  || document.webkitFullscreenElement
+  || document.mozFullScreenElement
+  || document.msFullscreenElement
+);
+
 const RoomScene = () => {
   const [hasStarted, setHasStarted] = useState(false);
   const [isGameLoaded, setIsGameLoaded] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isNativeFullscreen, setIsNativeFullscreen] = useState(false);
+  const [gameSessionId, setGameSessionId] = useState(0);
   const [viewportType, setViewportType] = useState(getViewportType);
   const [orientation, setOrientation] = useState(getOrientation);
   const [isTouchLayout, setIsTouchLayout] = useState(getIsTouchLayout);
+  const roomRef = useRef(null);
   const siteAudioRef = useRef(null);
   const gameFrameRef = useRef(null);
   const isMutedRef = useRef(isMuted);
+
+  const syncVisualViewport = useCallback(() => {
+    const viewport = window.visualViewport;
+    const width = viewport?.width || window.innerWidth;
+    const height = viewport?.height || window.innerHeight;
+    const offsetLeft = viewport?.offsetLeft || 0;
+    const offsetTop = viewport?.offsetTop || 0;
+    const root = document.documentElement;
+
+    root.style.setProperty('--app-visual-width', `${width}px`);
+    root.style.setProperty('--app-visual-height', `${height}px`);
+    root.style.setProperty('--app-visual-offset-left', `${offsetLeft}px`);
+    root.style.setProperty('--app-visual-offset-top', `${offsetTop}px`);
+  }, []);
+
+  const enterNativeFullscreen = useCallback(() => {
+    syncVisualViewport();
+    const element = roomRef.current;
+    const requestFullscreen = element?.requestFullscreen
+      || element?.webkitRequestFullscreen
+      || element?.webkitRequestFullScreen
+      || element?.mozRequestFullScreen
+      || element?.msRequestFullscreen;
+
+    if (!requestFullscreen) {
+      return Promise.resolve(false);
+    }
+
+    try {
+      const result = requestFullscreen.call(element, { navigationUI: 'hide' });
+      return Promise.resolve(result)
+        .then(() => true)
+        .catch(() => false);
+    } catch {
+      return Promise.resolve(false);
+    }
+  }, [syncVisualViewport]);
+
+  const exitNativeFullscreen = useCallback(() => {
+    const exitFullscreen = document.exitFullscreen
+      || document.webkitExitFullscreen
+      || document.webkitCancelFullScreen
+      || document.mozCancelFullScreen
+      || document.msExitFullscreen;
+
+    if (!getFullscreenElement() || !exitFullscreen) {
+      setIsNativeFullscreen(false);
+      return Promise.resolve(false);
+    }
+
+    try {
+      const result = exitFullscreen.call(document);
+      return Promise.resolve(result)
+        .then(() => {
+          setIsNativeFullscreen(false);
+          return true;
+        })
+        .catch(() => false);
+    } catch {
+      return Promise.resolve(false);
+    }
+  }, []);
 
   const playSiteAudio = useCallback(() => {
     const audio = siteAudioRef.current;
@@ -60,17 +132,80 @@ const RoomScene = () => {
 
   useEffect(() => {
     const updateViewport = () => {
+      syncVisualViewport();
       setViewportType(getViewportType());
       setOrientation(getOrientation());
       setIsTouchLayout(getIsTouchLayout());
     };
+    syncVisualViewport();
     window.addEventListener('resize', updateViewport);
     window.addEventListener('orientationchange', updateViewport);
+    window.visualViewport?.addEventListener('resize', updateViewport);
+    window.visualViewport?.addEventListener('scroll', updateViewport);
     return () => {
       window.removeEventListener('resize', updateViewport);
       window.removeEventListener('orientationchange', updateViewport);
+      window.visualViewport?.removeEventListener('resize', updateViewport);
+      window.visualViewport?.removeEventListener('scroll', updateViewport);
     };
-  }, []);
+  }, [syncVisualViewport]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsNativeFullscreen(Boolean(getFullscreenElement()));
+      syncVisualViewport();
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
+    };
+  }, [syncVisualViewport]);
+
+  useEffect(() => {
+    const shouldLockSession = hasStarted && isExpanded && isTouchLayout;
+    let lastTouchEnd = 0;
+
+    document.documentElement.classList.toggle('game-session-lock', shouldLockSession);
+    document.body.classList.toggle('game-session-lock', shouldLockSession);
+
+    if (!shouldLockSession) {
+      return () => {};
+    }
+
+    const preventGesture = (event) => event.preventDefault();
+    const preventFastDoubleTap = (event) => {
+      const now = Date.now();
+      if (now - lastTouchEnd < 360) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    };
+
+    syncVisualViewport();
+    document.addEventListener('dblclick', preventGesture, { capture: true, passive: false });
+    document.addEventListener('touchend', preventFastDoubleTap, { capture: true, passive: false });
+    document.addEventListener('gesturestart', preventGesture, { capture: true, passive: false });
+    document.addEventListener('gesturechange', preventGesture, { capture: true, passive: false });
+    document.addEventListener('gestureend', preventGesture, { capture: true, passive: false });
+
+    return () => {
+      document.removeEventListener('dblclick', preventGesture, { capture: true, passive: false });
+      document.removeEventListener('touchend', preventFastDoubleTap, { capture: true, passive: false });
+      document.removeEventListener('gesturestart', preventGesture, { capture: true, passive: false });
+      document.removeEventListener('gesturechange', preventGesture, { capture: true, passive: false });
+      document.removeEventListener('gestureend', preventGesture, { capture: true, passive: false });
+      document.documentElement.classList.remove('game-session-lock');
+      document.body.classList.remove('game-session-lock');
+    };
+  }, [hasStarted, isExpanded, isTouchLayout, syncVisualViewport]);
 
   useEffect(() => {
     isMutedRef.current = isMuted;
@@ -153,20 +288,48 @@ const RoomScene = () => {
 
   const handleStart = useCallback(() => {
     playSiteAudio();
+    if (isTouchLayout && orientation === 'landscape') {
+      enterNativeFullscreen();
+    }
     setIsGameLoaded(false);
     setIsExpanded(true);
     setHasStarted(true);
     window.setTimeout(() => gameFrameRef.current?.focus(), 80);
-  }, [playSiteAudio]);
+  }, [enterNativeFullscreen, isTouchLayout, orientation, playSiteAudio]);
 
   const handleExit = useCallback(() => {
+    gameFrameRef.current?.stop();
+    exitNativeFullscreen();
     setHasStarted(false);
     setIsGameLoaded(false);
     setIsExpanded(false);
+    setGameSessionId((current) => current + 1);
     window.setTimeout(() => {
       playSiteAudio();
     }, 0);
-  }, [playSiteAudio]);
+  }, [exitNativeFullscreen, playSiteAudio]);
+
+  const handleToggleExpanded = useCallback(() => {
+    setIsExpanded((current) => {
+      const nextExpanded = !current;
+      if (nextExpanded) {
+        enterNativeFullscreen();
+      } else {
+        exitNativeFullscreen();
+      }
+      return nextExpanded;
+    });
+    window.setTimeout(() => gameFrameRef.current?.focus(), 80);
+  }, [enterNativeFullscreen, exitNativeFullscreen]);
+
+  const handleEnterFullscreen = useCallback(() => {
+    setIsExpanded(true);
+    enterNativeFullscreen();
+    window.setTimeout(() => {
+      syncVisualViewport();
+      gameFrameRef.current?.focus();
+    }, 80);
+  }, [enterNativeFullscreen, syncVisualViewport]);
 
   useEffect(() => {
     const receiveGameMessage = (event) => {
@@ -193,7 +356,9 @@ const RoomScene = () => {
         `game-room-${orientation}`,
         isTouchLayout ? 'game-room-touch' : '',
         isExpanded ? 'game-room-expanded' : '',
+        isNativeFullscreen ? 'game-room-native-fullscreen' : '',
       ].filter(Boolean).join(' ')}
+      ref={roomRef}
       style={{ '--room-reference-image': `url("${gameMeta.roomReferencePath}")` }}
     >
       <div className="reference-room-stage" aria-label="Retro room game start screen">
@@ -208,6 +373,7 @@ const RoomScene = () => {
           isGameLoaded={isGameLoaded}
           isMuted={isMuted}
           isExpanded={isExpanded}
+          gameSessionId={gameSessionId}
           gameFrameRef={gameFrameRef}
           onStart={handleStart}
           onGameLoad={() => setIsGameLoaded(true)}
@@ -230,8 +396,11 @@ const RoomScene = () => {
       {(hasStarted || (isTouchLayout && orientation === 'landscape')) && (
         <GameSessionControls
           isExpanded={isExpanded}
+          isFullscreenActive={isNativeFullscreen}
+          showFullscreenButton={hasStarted && isTouchLayout}
           onExit={handleExit}
-          onToggleExpanded={() => setIsExpanded((current) => !current)}
+          onToggleExpanded={handleToggleExpanded}
+          onEnterFullscreen={handleEnterFullscreen}
         />
       )}
       <VolumeToggle

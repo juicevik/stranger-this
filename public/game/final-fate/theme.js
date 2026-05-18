@@ -601,12 +601,55 @@ function startStrangerArcade() {
     strangerArcadeFrame = window.requestAnimationFrame(strangerArcadeLoop);
 }
 
+function stopStrangerArcade() {
+    strangerArcadeStarted = false;
+    strangerArcadePaused = false;
+    strangerArcadeState = null;
+
+    if (strangerArcadeFrame !== null) {
+        window.cancelAnimationFrame(strangerArcadeFrame);
+        strangerArcadeFrame = null;
+    }
+    if (renderTimer !== null) {
+        clearInterval(renderTimer);
+        renderTimer = null;
+    }
+    if (typeof frameCounterTimer !== "undefined" && frameCounterTimer !== null) {
+        clearInterval(frameCounterTimer);
+        frameCounterTimer = null;
+    }
+    if (gamepad_handle !== null) {
+        clearInterval(gamepad_handle);
+        gamepad_handle = null;
+    }
+
+    focusLost();
+    [sfx0, sfx1, sfx2, sfx3, sfx4, sfx5, game_over, mainBGM, specialBGM, susBGM].forEach(function (media) {
+        if (media) {
+            media.pause();
+            try {
+                media.currentTime = 0;
+            } catch (error) {}
+        }
+    });
+    context.clearRect(0, 0, 800, 600);
+}
+
+window.stopStrangerArcade = stopStrangerArcade;
+
 boot = function () {
     startStrangerArcade();
 };
 
 window.addEventListener("message", function (event) {
-    if (event.origin !== window.location.origin || !event.data || event.data.type !== "final-fate-muted") {
+    if (event.origin !== window.location.origin || !event.data) {
+        return;
+    }
+    if (event.data.type === "final-fate-stop") {
+        stopStrangerArcade();
+        return;
+    }
+    if (event.data.type !== "final-fate-muted") {
         return;
     }
     strangerArcadeMuted = Boolean(event.data.muted);

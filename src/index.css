@@ -2,3 +2,22 @@ body {
   margin: 0;
   padding: 0;
 }
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  background: #000;
+}
+
+html.game-session-lock,
+html.game-session-lock body {
+  height: var(--app-visual-height, 100dvh);
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-text-size-adjust: 100%;
+  -webkit-user-select: none;
+  user-select: none;
+}

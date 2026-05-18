@@ -25,6 +25,23 @@ const canFocusFrameWindow = () => !navigator.userAgent.toLowerCase().includes('j
 const GameFrame = forwardRef(({ isMuted, onLoad }, ref) => {
   const frameRef = useRef(null);
 
+  const stopFrame = useCallback(() => {
+    const frame = frameRef.current;
+
+    if (!frame) {
+      return;
+    }
+
+    try {
+      frame.contentWindow?.postMessage({ type: 'final-fate-stop' }, window.location.origin);
+      frame.contentWindow?.stopStrangerArcade?.();
+    } catch {
+      // The frame is same-origin in production; this is only a defensive cleanup path.
+    }
+
+    frame.src = 'about:blank';
+  }, []);
+
   const applyMutedState = useCallback(() => {
     setFrameMediaMuted(frameRef.current, isMuted);
   }, [isMuted]);
@@ -49,7 +66,8 @@ const GameFrame = forwardRef(({ isMuted, onLoad }, ref) => {
       });
     },
     focus: focusGame,
-  }), [focusGame, postToGame]);
+    stop: stopFrame,
+  }), [focusGame, postToGame, stopFrame]);
 
   useEffect(() => {
     applyMutedState();

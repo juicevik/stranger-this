@@ -8,7 +8,7 @@ and open the template in the editor.
     <head>
         <title>Stranger Things</title>
         <link rel="icon" type="image/x-icon" href="favicon.ico">
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
         <meta charset="UTF-8">
         <style>
             html,
@@ -19,6 +19,9 @@ and open the template in the editor.
                 background: #000;
                 touch-action: none;
                 overscroll-behavior: none;
+                -webkit-text-size-adjust: 100%;
+                -webkit-user-select: none;
+                user-select: none;
             }
 
             #screen {
@@ -27,6 +30,9 @@ and open the template in the editor.
                 object-fit: contain;
                 image-rendering: pixelated;
                 background: #000;
+                touch-action: none;
+                -webkit-user-select: none;
+                user-select: none;
             }
         </style>
     </head>
@@ -56,6 +62,27 @@ and open the template in the editor.
         </audio>
         <audio id="sfx-channel-5" src="laser.wav" preload="auto" hidden>
         </audio>
+        <script>
+            (function () {
+                var lastTouchEnd = 0;
+                var preventGesture = function (event) {
+                    event.preventDefault();
+                };
+                var preventFastDoubleTap = function (event) {
+                    var now = Date.now();
+                    if (now - lastTouchEnd < 360) {
+                        event.preventDefault();
+                    }
+                    lastTouchEnd = now;
+                };
+
+                document.addEventListener("dblclick", preventGesture, { capture: true, passive: false });
+                document.addEventListener("touchend", preventFastDoubleTap, { capture: true, passive: false });
+                document.addEventListener("gesturestart", preventGesture, { capture: true, passive: false });
+                document.addEventListener("gesturechange", preventGesture, { capture: true, passive: false });
+                document.addEventListener("gestureend", preventGesture, { capture: true, passive: false });
+            }());
+        </script>
         <!-- MISC / MAIN SYSTEMS -->
         <script src="misc.js"></script>
         <script src="gameStorage.js"></script>

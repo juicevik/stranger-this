@@ -7,6 +7,7 @@ const CrtComputer = ({
   isGameLoaded,
   isMuted,
   isExpanded,
+  gameSessionId,
   gameFrameRef,
   onStart,
   onGameLoad,
@@ -18,7 +19,7 @@ const CrtComputer = ({
     {hasStarted ? (
       <>
         {!isGameLoaded && <div className="screen-loading">LOADING</div>}
-        <GameFrame ref={gameFrameRef} isMuted={isMuted} onLoad={onGameLoad} />
+        <GameFrame key={gameSessionId} ref={gameFrameRef} isMuted={isMuted} onLoad={onGameLoad} />
       </>
     ) : (
       <button className="start-hotspot" type="button" onClick={onStart}>
