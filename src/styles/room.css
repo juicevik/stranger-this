@@ -60,9 +60,9 @@
   z-index: 0;
   content: "";
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.72), transparent 20%, transparent 80%, rgba(0, 0, 0, 0.72)),
-    var(--room-reference-image) center / cover no-repeat;
-  filter: brightness(0.52);
+    radial-gradient(ellipse at 50% 50%, rgba(72, 9, 9, 0.2), rgba(0, 0, 0, 0.54) 58%, rgba(0, 0, 0, 0.92) 100%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.82), transparent 24%, transparent 76%, rgba(0, 0, 0, 0.82)),
+    #050303;
 }
 
 .reference-header-mask {
